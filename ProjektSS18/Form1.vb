@@ -5,21 +5,15 @@ Imports System.IO
 
 
 Public Class Form1
-    <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)>
-    Private Shared Function FindWindow(
-     ByVal lpClassName As String,
-     ByVal lpWindowName As String) As IntPtr
-    End Function
 
-    <DllImport("user32.dll")>
-    Private Shared Function SetForegroundWindow(ByVal hWnd As IntPtr) As <MarshalAs(UnmanagedType.Bool)> Boolean
-    End Function
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
         Dim CATIA As INFITF.Application
         Dim myDoc As Document
+        Dim sel As Selection
 
+        Dim partNamePath As String
         Dim fileDxf As String
         Dim timeElapsed As Integer
 
@@ -33,6 +27,9 @@ Public Class Form1
         End Try
 
         myDoc = CATIA.ActiveDocument
+
+        partNamePath = myDoc.FullName.Replace("CATPart", "")
+
 
         'Datei löschen, falls schon vorhanden
         fileDxf = myDoc.FullName.Replace("CATPart", "dxf")
@@ -61,7 +58,25 @@ Public Class Form1
 
         End While
 
-        System.Console.WriteLine("hat alles geklappt")
+        'Exportierte Datei öffnen
+        CATIA.Documents.Open(fileDxf)
+        Thread.Sleep(2000)
+
+        'alles selektieren und Linienart und Linienbreite anpassen
+        sel = CATIA.ActiveDocument.Selection
+        sel.Search("Type=*,all")
+        CATIA.ActiveDocument.Selection.VisProperties.SetRealLineType(1, 0)
+        CATIA.ActiveDocument.Selection.VisProperties.SetRealWidth(1, 0)
+        sel.Clear()
+
+        'Außenkontur Farbe anpassen
+        sel.Search("Name='Linie.1',all")
+        CATIA.StartCommand("Automatische Suche")
+        CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
+        sel.Clear()
+
+        CATIA.ActiveDocument.SaveAs(partNamePath.)
+
 
     End Sub
 End Class
