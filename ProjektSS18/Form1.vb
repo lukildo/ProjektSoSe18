@@ -28,9 +28,10 @@ Public Class Form1
 
         myDoc = CATIA.ActiveDocument
 
+        'Dateiauswahl auf Outputpath setzen
+        myDoc.SaveAs(myDoc.FullName)
+
         partNamePath = myDoc.FullName.Replace("CATPart", "")
-
-
         'Datei löschen, falls schon vorhanden
         fileDxf = myDoc.FullName.Replace("CATPart", "dxf")
         If File.Exists(fileDxf) Then File.Delete(fileDxf)
@@ -67,7 +68,30 @@ Public Class Form1
         sel.Search("Type=*,all")
         CATIA.ActiveDocument.Selection.VisProperties.SetRealLineType(1, 0)
         CATIA.ActiveDocument.Selection.VisProperties.SetRealWidth(1, 0)
-        sel.Clear()
+
+        Dim i As Integer
+        Dim j As Integer
+        Dim sheets As DrawingSheets
+
+        sheets = CATIA.ActiveDocument.Sheets
+
+
+        sheets.ActiveSheet.Views.Item(3).x = 100
+        sheets.ActiveSheet.Views.Item(3).y = 100
+        System.Console.WriteLine(sheets.ActiveSheet.Views.Item(3).GeometricElements.Count)
+
+        For i = 1 To sheets.ActiveSheet.Views.Count
+            System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).Name)
+            System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).x)
+            System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).y)
+            For j = 1 To sheets.ActiveSheet.Views.Item(i).GeometricElements.Count
+                System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).GeometricElements.Item(j).Name)
+                'CATIA.ActiveDocument.Selection.Remove(i)
+                'System.Console.WriteLine(i)
+            Next j
+        Next i
+
+            sel.Clear()
 
         'Außenkontur Farbe anpassen
         sel.Search("Name='Linie.1',all")
@@ -75,8 +99,33 @@ Public Class Form1
         CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
         sel.Clear()
 
-        CATIA.ActiveDocument.SaveAs(partNamePath.)
+        'CATIA.ActiveDocument.SaveAs(partNamePath.)
 
 
+    End Sub
+
+    'Output mit Dialog festlegen
+    Private Sub outputPath_Click(sender As Object, e As EventArgs) Handles outputPath.Click
+
+        Dim dialog As New FolderBrowserDialog()
+
+        If dialog.ShowDialog = DialogResult.OK Then
+            outputPath.Text = dialog.SelectedPath
+        End If
+
+    End Sub
+
+    'Standard Output als Desktop festlegen
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        outputPath.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+    End Sub
+
+    'Textbox mit den Radiobuttons aktivieren
+    Private Sub diffPath_CheckedChanged(sender As Object, e As EventArgs) Handles diffPath.CheckedChanged
+        If diffPath.Checked Then
+            outputPath.Enabled = True
+        Else
+            outputPath.Enabled = False
+        End If
     End Sub
 End Class
