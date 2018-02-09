@@ -24,7 +24,7 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.Button1 = New System.Windows.Forms.Button()
-        Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
+        Me.progBar = New System.Windows.Forms.ProgressBar()
         Me.progressLbl = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.samePath = New System.Windows.Forms.RadioButton()
@@ -46,14 +46,14 @@ Partial Class Form1
         Me.Button1.Text = "CATDrawings erzeugen"
         Me.Button1.UseVisualStyleBackColor = True
         '
-        'ProgressBar1
+        'progBar
         '
-        Me.ProgressBar1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.progBar.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.ProgressBar1.Location = New System.Drawing.Point(12, 204)
-        Me.ProgressBar1.Name = "ProgressBar1"
-        Me.ProgressBar1.Size = New System.Drawing.Size(315, 23)
-        Me.ProgressBar1.TabIndex = 1
+        Me.progBar.Location = New System.Drawing.Point(12, 204)
+        Me.progBar.Name = "progBar"
+        Me.progBar.Size = New System.Drawing.Size(315, 23)
+        Me.progBar.TabIndex = 1
         '
         'progressLbl
         '
@@ -61,12 +61,13 @@ Partial Class Form1
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.progressLbl.AutoSize = True
         Me.progressLbl.BackColor = System.Drawing.SystemColors.ButtonFace
-        Me.progressLbl.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.progressLbl.Location = New System.Drawing.Point(127, 179)
+        Me.progressLbl.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
+        Me.progressLbl.Location = New System.Drawing.Point(15, 179)
         Me.progressLbl.Name = "progressLbl"
-        Me.progressLbl.Size = New System.Drawing.Size(84, 17)
+        Me.progressLbl.Size = New System.Drawing.Size(61, 13)
         Me.progressLbl.TabIndex = 2
-        Me.progressLbl.Text = "ProgressLbl"
+        Me.progressLbl.Text = "progressLbl"
+        Me.progressLbl.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'Label1
         '
@@ -135,7 +136,7 @@ Partial Class Form1
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.progressLbl)
-        Me.Controls.Add(Me.ProgressBar1)
+        Me.Controls.Add(Me.progBar)
         Me.Controls.Add(Me.Button1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
@@ -149,7 +150,7 @@ Partial Class Form1
     End Sub
 
     Friend WithEvents Button1 As Button
-    Friend WithEvents ProgressBar1 As ProgressBar
+    Friend WithEvents progBar As ProgressBar
     Friend WithEvents progressLbl As Label
     Friend WithEvents Label1 As Label
     Friend WithEvents samePath As RadioButton
