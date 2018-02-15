@@ -5,7 +5,7 @@ Imports System.IO
 
 
 Public Class Form1
-
+    'fff
     Public progMax As Integer
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -83,7 +83,7 @@ Public Class Form1
             timeElapsed = timeElapsed + 1
 
             'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-            If timeElapsed > 6 Then
+            If timeElapsed > 10 Then
                 MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
             End If
