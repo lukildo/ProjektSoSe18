@@ -21,7 +21,7 @@ Public Class Form1
         Dim fileDxf As String
         Dim timeElapsed As Integer
 
-        'Catia Verbindung auf
+        'Catia Verbindung aufbauen
         Try
             CATIA = Marshal.GetActiveObject("CATIA.Application")
         Catch ex As COMException
