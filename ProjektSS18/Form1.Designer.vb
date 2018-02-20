@@ -30,7 +30,7 @@ Partial Class Form1
         Me.samePath = New System.Windows.Forms.RadioButton()
         Me.diffPath = New System.Windows.Forms.RadioButton()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.outputPath = New System.Windows.Forms.TextBox()
+        Me.outputPathBox = New System.Windows.Forms.TextBox()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -106,7 +106,7 @@ Partial Class Form1
         '
         Me.GroupBox1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.GroupBox1.Controls.Add(Me.outputPath)
+        Me.GroupBox1.Controls.Add(Me.outputPathBox)
         Me.GroupBox1.Controls.Add(Me.samePath)
         Me.GroupBox1.Controls.Add(Me.diffPath)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
@@ -117,16 +117,16 @@ Partial Class Form1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Ausgabepfad"
         '
-        'outputPath
+        'outputPathBox
         '
-        Me.outputPath.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.outputPath.Enabled = False
-        Me.outputPath.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
-        Me.outputPath.Location = New System.Drawing.Point(126, 33)
-        Me.outputPath.Name = "outputPath"
-        Me.outputPath.ReadOnly = True
-        Me.outputPath.Size = New System.Drawing.Size(183, 20)
-        Me.outputPath.TabIndex = 7
+        Me.outputPathBox.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.outputPathBox.Enabled = False
+        Me.outputPathBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
+        Me.outputPathBox.Location = New System.Drawing.Point(126, 33)
+        Me.outputPathBox.Name = "outputPathBox"
+        Me.outputPathBox.ReadOnly = True
+        Me.outputPathBox.Size = New System.Drawing.Size(183, 20)
+        Me.outputPathBox.TabIndex = 7
         '
         'Form1
         '
@@ -156,5 +156,5 @@ Partial Class Form1
     Friend WithEvents samePath As RadioButton
     Friend WithEvents diffPath As RadioButton
     Friend WithEvents GroupBox1 As GroupBox
-    Friend WithEvents outputPath As TextBox
+    Friend WithEvents outputPathBox As TextBox
 End Class
