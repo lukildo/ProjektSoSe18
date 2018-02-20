@@ -13,7 +13,6 @@ Public Class Form1
         Dim CATIA As INFITF.Application
         Dim sel As Selection
 
-
         Dim outputPath As String
         Dim partName As String
         Dim i As Integer
@@ -30,15 +29,24 @@ Public Class Form1
             Exit Sub
         End Try
 
-        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Then
+        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Or Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
             'Fehlermeldung wenn es kein Sheetmetal Part ist
             MessageBox.Show("Kein Sheetmetal Part geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End If
 
+        'Progressbar zurücksetzen
+        progBar.Value = 0
         progMax = 4
-        partName = CATIA.ActiveDocument.Name
+        partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
         partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
+
+        'Output festlegen
+        If diffPath.Checked Then
+            outputPath = outputPathBox.Text + "\" + partName + ".CATDrawing"
+        Else
+            outputPath = partNamePath + ".CATDrawing"
+        End If
 
         'Mit Kopiespeicherung den Pfad zurücksetzen
         Try
@@ -133,45 +141,48 @@ Public Class Form1
         CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
         sel.Clear()
 
+        'Datei speichern
+        CATIA.ActiveDocument.SaveAs(outputPath)
+
         '##ProgressUpdate
         progUpdate(partName + ".CATDrawing fertisch")
 
-        'CATIA.ActiveDocument.SaveAs(partNamePath.)
+
 
 
     End Sub
 
     'Output mit Dialog festlegen
-    Private Sub outputPath_Click(sender As Object, e As EventArgs) Handles outputPath.Click
+    Private Sub outputPathBox_Click(sender As Object, e As EventArgs) Handles outputPathBox.Click
 
         Dim dialog As New FolderBrowserDialog()
 
         If dialog.ShowDialog = DialogResult.OK Then
-            outputPath.Text = dialog.SelectedPath
+            outputPathBox.Text = dialog.SelectedPath
         End If
 
     End Sub
 
     'Standard Output als Desktop festlegen
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        outputPath.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+        outputPathBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
         progressLbl.Text = ""
     End Sub
 
     'Textbox mit den Radiobuttons aktivieren
     Private Sub diffPath_CheckedChanged(sender As Object, e As EventArgs) Handles diffPath.CheckedChanged
         If diffPath.Checked Then
-            outputPath.Enabled = True
+            outputPathBox.Enabled = True
         Else
-            outputPath.Enabled = False
+            outputPathBox.Enabled = False
         End If
     End Sub
 
-    Private Sub progUpdate(ByVal msg As String)
+    Private Sub progUpdate(ByVal msg As String, Optional ByVal times As Integer = 1)
         Dim progValue As Integer
 
         progressLbl.Text = msg
-        progValue = progBar.Value + 100 / progMax
+        progValue = progBar.Value + times * 100 / progMax
 
         If progValue > 100 Then progValue = 100
         progBar.Value = progValue
