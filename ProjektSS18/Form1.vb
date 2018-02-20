@@ -13,13 +13,14 @@ Public Class Form1
         Dim CATIA As INFITF.Application
         Dim sel As Selection
 
+        Dim outputPath As String
         Dim partName As String
         Dim i As Integer
         Dim partNamePath As String
         Dim fileDxf As String
         Dim timeElapsed As Integer
 
-        'Catia Verbindung auf
+        'Catia Verbindung aufbauen
         Try
             CATIA = Marshal.GetActiveObject("CATIA.Application")
         Catch ex As COMException
@@ -28,7 +29,8 @@ Public Class Form1
             Exit Sub
         End Try
 
-        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Or Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
+        System.Console.WriteLine(CATIA.GetWorkbenchId)
+        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
             'Fehlermeldung wenn es kein Sheetmetal Part ist
             MessageBox.Show("Kein Sheetmetal Part geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
@@ -47,25 +49,29 @@ Public Class Form1
             outputPath = partNamePath + ".CATDrawing"
         End If
 
-        'Mit Kopiespeicherung den Pfad zurücksetzen
+        'Mit Speicherung den Pfad zurücksetzen
         Try
-            CATIA.ActiveDocument.SaveAs(partNamePath + "CopyS.CATPart")
-        Catch
-            'Fehlermeldung wird später angezeigt
+            My.Computer.FileSystem.RenameFile(CATIA.ActiveDocument.FullName, partName + "S4ve.CATPart")
+            CATIA.ActiveDocument.SaveAs(partNamePath + ".CATPart")
+        Catch ex As Exception
+            If TypeOf ex Is IOException Then
+                System.Console.WriteLine("Fehler beim Umbenennen der Datei:" + ex.Message)
+            End If
         End Try
 
-        timeElapsed = 0
-        While Not File.Exists(partNamePath + "CopyS.CATPart")
+        While Not File.Exists(partNamePath + ".CATPart")
             Thread.Sleep(500)
             timeElapsed = timeElapsed + 1
             'Fehlermeldung, falls es Probleme beim Speichern gab
             If timeElapsed > 6 Then
+                'Sicherungsdatei verwenden
+                My.Computer.FileSystem.RenameFile(partNamePath + "S4ve.CATPart", partName + ".CATPart")
                 MessageBox.Show(partName + " konnte nicht gespeichert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
             End If
         End While
-        'Datei direkt wieder löschen
-        File.Delete(partNamePath + "CopyS.CATPart")
+        'Sicherungsdatei kann gelöscht werden, wenn alles geklappt hat
+        File.Delete(partNamePath + "S4ve.CATPart")
 
         'Datei löschen, falls schon vorhanden
         fileDxf = CATIA.ActiveDocument.FullName.Replace("CATPart", "dxf")
