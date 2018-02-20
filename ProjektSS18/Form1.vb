@@ -13,10 +13,8 @@ Public Class Form1
         Dim CATIA As INFITF.Application
         Dim sel As Selection
 
-
         Dim outputPath As String
         Dim partName As String
-        Dim i As Integer
         Dim partNamePath As String
         Dim fileDxf As String
         Dim timeElapsed As Integer
@@ -30,36 +28,48 @@ Public Class Form1
             Exit Sub
         End Try
 
-        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Then
+        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
             'Fehlermeldung wenn es kein Sheetmetal Part ist
             MessageBox.Show("Kein Sheetmetal Part geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End If
 
+        'Progressbar zurücksetzen und Max-Wert berechnen
+        progBar.Value = 0
         progMax = 4
-        partName = CATIA.ActiveDocument.Name
+        partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
         partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
 
-        'Mit Kopiespeicherung den Pfad zurücksetzen
+        'Output festlegen
+        If diffPath.Checked Then
+            outputPath = outputPathBox.Text + "\" + partName + ".CATDrawing"
+        Else
+            outputPath = partNamePath + ".CATDrawing"
+        End If
+
+        'Mit Speicherung den Pfad zurücksetzen
         Try
-            CATIA.ActiveDocument.SaveAs(partNamePath + "CopyS.CATPart")
-        Catch
-            'Fehlermeldung wird später angezeigt
+            My.Computer.FileSystem.RenameFile(CATIA.ActiveDocument.FullName, partName + "S4ve.CATPart")
+            CATIA.ActiveDocument.SaveAs(partNamePath + ".CATPart")
+        Catch ex As Exception
+            If TypeOf ex Is IOException Then
+                System.Console.WriteLine("Fehler beim Umbenennen der Datei:" + ex.Message)
+            End If
         End Try
 
-        timeElapsed = 0
-        While Not File.Exists(partNamePath + "CopyS.CATPart")
+        While Not File.Exists(partNamePath + ".CATPart")
             Thread.Sleep(500)
             timeElapsed = timeElapsed + 1
             'Fehlermeldung, falls es Probleme beim Speichern gab
             If timeElapsed > 6 Then
+                'Sicherungsdatei verwenden
+                My.Computer.FileSystem.RenameFile(partNamePath + "S4ve.CATPart", partName + ".CATPart")
                 MessageBox.Show(partName + " konnte nicht gespeichert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
             End If
         End While
-        'Datei direkt wieder löschen
-        File.Delete(partNamePath + "CopyS.CATPart")
-
+        'Sicherungsdatei kann gelöscht werden, wenn alles geklappt hat
+        File.Delete(partNamePath + "S4ve.CATPart")
         'Datei löschen, falls schon vorhanden
         fileDxf = CATIA.ActiveDocument.FullName.Replace("CATPart", "dxf")
         If File.Exists(fileDxf) Then File.Delete(fileDxf)
@@ -81,97 +91,76 @@ Public Class Form1
         While Not File.Exists(fileDxf)
             Thread.Sleep(500)
             timeElapsed = timeElapsed + 1
-
             'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
             If timeElapsed > 6 Then
                 MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
             End If
-
         End While
 
         '##ProgressUpdate
         progUpdate(partName + ".dxf öffnen")
+
         'Exportierte Datei öffnen
         CATIA.Documents.Open(fileDxf)
-
         'DXF wird nicht mehr gebraucht
         File.Delete(fileDxf)
 
         '##ProgressUpdate
         progUpdate(partName + ".dxf anpassen und speichern")
+
         'alles selektieren und Linienart und Linienbreite anpassen
         sel = CATIA.ActiveDocument.Selection
         sel.Search("Type=*,all")
         CATIA.ActiveDocument.Selection.VisProperties.SetRealLineType(1, 0)
         CATIA.ActiveDocument.Selection.VisProperties.SetRealWidth(1, 0)
 
-
-        Dim j As Integer
-        Dim sheets As DrawingSheets
-
-        sheets = CATIA.ActiveDocument.Sheets
-        System.Console.WriteLine(sheets.ActiveSheet.Views.Item(3).GeometricElements.Count)
-
-        For i = 1 To sheets.ActiveSheet.Views.Count
-            System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).Name)
-            System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).x)
-            System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).y)
-            For j = 1 To sheets.ActiveSheet.Views.Item(i).GeometricElements.Count
-                System.Console.WriteLine(sheets.ActiveSheet.Views.Item(i).GeometricElements.Item(j).Name)
-                'CATIA.ActiveDocument.Selection.Remove(i)
-                'System.Console.WriteLine(i)
-            Next j
-        Next i
-
-        sel.Clear()
-
         'erstes Objekt nach dem Achsensystem ist Start der Außenkontur
-        sel.Add(sheets.ActiveSheet.Views.Item(3).GeometricElements.Item(2))
+        sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet.Views.Item(3).GeometricElements.Item(2))
         CATIA.StartCommand("Automatische Suche")
         'Außenkontur Farbe anpassen
         CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
         sel.Clear()
 
+        'Datei überschreiben und speichern
+        If File.Exists(outputPath) Then File.Delete(outputPath)
+        CATIA.ActiveDocument.SaveAs(outputPath)
+
         '##ProgressUpdate
-        progUpdate(partName + ".CATDrawing fertisch")
-
-        'CATIA.ActiveDocument.SaveAs(partNamePath.)
-
-
+        progUpdate(partName + ".CATDrawing fertig")
     End Sub
 
     'Output mit Dialog festlegen
-    Private Sub outputPath_Click(sender As Object, e As EventArgs) Handles outputPath.Click
+    Private Sub outputPathBox_Click(sender As Object, e As EventArgs) Handles outputPathBox.Click
 
         Dim dialog As New FolderBrowserDialog()
 
         If dialog.ShowDialog = DialogResult.OK Then
-            outputPath.Text = dialog.SelectedPath
+            outputPathBox.Text = dialog.SelectedPath
         End If
 
     End Sub
 
     'Standard Output als Desktop festlegen
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        outputPath.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+        outputPathBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
         progressLbl.Text = ""
     End Sub
 
     'Textbox mit den Radiobuttons aktivieren
     Private Sub diffPath_CheckedChanged(sender As Object, e As EventArgs) Handles diffPath.CheckedChanged
         If diffPath.Checked Then
-            outputPath.Enabled = True
+            outputPathBox.Enabled = True
         Else
-            outputPath.Enabled = False
+            outputPathBox.Enabled = False
         End If
     End Sub
 
-    Private Sub progUpdate(ByVal msg As String)
+    Private Sub progUpdate(ByVal msg As String, Optional ByVal times As Integer = 1)
         Dim progValue As Integer
 
         progressLbl.Text = msg
-        progValue = progBar.Value + 100 / progMax
+        progValue = progBar.Value + times * 100 / progMax
 
         If progValue > 100 Then progValue = 100
         progBar.Value = progValue
