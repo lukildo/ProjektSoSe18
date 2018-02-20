@@ -28,7 +28,6 @@ Public Class Form1
             Exit Sub
         End Try
 
-        System.Console.WriteLine(CATIA.GetWorkbenchId)
         If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
             'Fehlermeldung wenn es kein Sheetmetal Part ist
             MessageBox.Show("Kein Sheetmetal Part geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
