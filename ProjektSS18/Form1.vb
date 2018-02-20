@@ -13,14 +13,13 @@ Public Class Form1
         Dim CATIA As INFITF.Application
         Dim sel As Selection
 
-        Dim outputPath As String
         Dim partName As String
         Dim i As Integer
         Dim partNamePath As String
         Dim fileDxf As String
         Dim timeElapsed As Integer
 
-        'Catia Verbindung aufbauen
+        'Catia Verbindung auf
         Try
             CATIA = Marshal.GetActiveObject("CATIA.Application")
         Catch ex As COMException
