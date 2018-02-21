@@ -171,7 +171,7 @@ Public Class Exporter
             outputPathBox.Enabled = False
         End If
     End Sub
-
+    'Progressbar aktualisieren
     Private Sub progUpdate(ByVal msg As String, Optional ByVal times As Integer = 1)
         Dim progValue As Integer
 
@@ -181,9 +181,13 @@ Public Class Exporter
         If progValue > 100 Then progValue = 100
         progBar.Value = progValue
     End Sub
-
+    'Zwischen den Forms wechseln
     Private Sub btnBack1_Click(sender As Object, e As EventArgs) Handles btnBack1.Click
         Main.Show()
         Me.Close()
+    End Sub
+    'Programm schließen, wenn auf das x gedrückt wird
+    Private Sub Exporter_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        If Not Main.Visible Then System.Windows.Forms.Application.Exit()
     End Sub
 End Class

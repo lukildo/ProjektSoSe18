@@ -40,7 +40,7 @@ Partial Class Nesting
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
-        Me.Button4 = New System.Windows.Forms.Button()
+        Me.btnBack = New System.Windows.Forms.Button()
         CType(Me.dataGrid, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -215,15 +215,15 @@ Partial Class Nesting
         Me.Button3.Text = "Automatisch anordnen"
         Me.Button3.UseVisualStyleBackColor = True
         '
-        'Button4
+        'btnBack
         '
-        Me.Button4.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Button4.Location = New System.Drawing.Point(474, 7)
-        Me.Button4.Name = "Button4"
-        Me.Button4.Size = New System.Drawing.Size(79, 26)
-        Me.Button4.TabIndex = 0
-        Me.Button4.Text = "Zurück"
-        Me.Button4.UseVisualStyleBackColor = True
+        Me.btnBack.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
+        Me.btnBack.Location = New System.Drawing.Point(474, 7)
+        Me.btnBack.Name = "btnBack"
+        Me.btnBack.Size = New System.Drawing.Size(79, 26)
+        Me.btnBack.TabIndex = 0
+        Me.btnBack.Text = "Zurück"
+        Me.btnBack.UseVisualStyleBackColor = True
         '
         'Nesting
         '
@@ -239,7 +239,7 @@ Partial Class Nesting
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.btnNewSheet)
-        Me.Controls.Add(Me.Button4)
+        Me.Controls.Add(Me.btnBack)
         Me.Controls.Add(Me.btnSelect)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -269,5 +269,5 @@ Partial Class Nesting
     Friend WithEvents Button1 As Button
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
-    Friend WithEvents Button4 As Button
+    Friend WithEvents btnBack As Button
 End Class

@@ -13,6 +13,12 @@
     End Sub
 
     Private Sub Nesting_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        System.Windows.Forms.Application.Exit()
+        'Nur das Programm beenden, wenn auf das x gedrückt wird
+        If Not Main.Visible Then System.Windows.Forms.Application.Exit()
+    End Sub
+
+    Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
+        Main.Show()
+        Me.Close()
     End Sub
 End Class
