@@ -4,7 +4,7 @@ Imports System.Threading
 Imports System.IO
 
 
-Public Class Form1
+Public Class Exporter
 
     Public progMax As Integer
 
@@ -114,9 +114,10 @@ Public Class Form1
         sel.Search("Type=*,all")
         CATIA.ActiveDocument.Selection.VisProperties.SetRealLineType(1, 0)
         CATIA.ActiveDocument.Selection.VisProperties.SetRealWidth(1, 0)
+        sel.Clear()
 
         'erstes Objekt nach dem Achsensystem ist Start der Außenkontur
-        sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet.Views.Item(3).GeometricElements.Item(2))
+        sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.GeometricElements.Item(2))
         CATIA.StartCommand("Automatische Suche")
         'Außenkontur Farbe anpassen
         CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
