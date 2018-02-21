@@ -31,6 +31,7 @@ Partial Class Exporter
         Me.diffPath = New System.Windows.Forms.RadioButton()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.outputPathBox = New System.Windows.Forms.TextBox()
+        Me.btnBack1 = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -38,9 +39,10 @@ Partial Class Exporter
         '
         Me.Button1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
         Me.Button1.Location = New System.Drawing.Point(12, 233)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(315, 33)
+        Me.Button1.Size = New System.Drawing.Size(205, 33)
         Me.Button1.TabIndex = 0
         Me.Button1.TabStop = False
         Me.Button1.Text = "CATDrawings erzeugen"
@@ -128,7 +130,20 @@ Partial Class Exporter
         Me.outputPathBox.Size = New System.Drawing.Size(183, 20)
         Me.outputPathBox.TabIndex = 7
         '
-        'Form1
+        'btnBack1
+        '
+        Me.btnBack1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnBack1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
+        Me.btnBack1.Location = New System.Drawing.Point(223, 233)
+        Me.btnBack1.Name = "btnBack1"
+        Me.btnBack1.Size = New System.Drawing.Size(104, 33)
+        Me.btnBack1.TabIndex = 0
+        Me.btnBack1.TabStop = False
+        Me.btnBack1.Text = "Zurück"
+        Me.btnBack1.UseVisualStyleBackColor = True
+        '
+        'Exporter
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -137,10 +152,11 @@ Partial Class Exporter
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.progressLbl)
         Me.Controls.Add(Me.progBar)
+        Me.Controls.Add(Me.btnBack1)
         Me.Controls.Add(Me.Button1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
-        Me.Name = "Form1"
+        Me.Name = "Exporter"
         Me.Text = "ShapeFormat"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
@@ -157,4 +173,5 @@ Partial Class Exporter
     Friend WithEvents diffPath As RadioButton
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents outputPathBox As TextBox
+    Friend WithEvents btnBack1 As Button
 End Class

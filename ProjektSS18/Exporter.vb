@@ -19,6 +19,11 @@ Public Class Exporter
         Dim fileDxf As String
         Dim timeElapsed As Integer
 
+        'UI blockieren
+        btnBack1.Enabled = False
+        Button1.Enabled = False
+        progBar.Value = 0
+
         'Catia Verbindung aufbauen
         Try
             CATIA = Marshal.GetActiveObject("CATIA.Application")
@@ -31,11 +36,12 @@ Public Class Exporter
         If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
             'Fehlermeldung wenn es kein Sheetmetal Part ist
             MessageBox.Show("Kein Sheetmetal Part geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            'UI aktivieren
+            btnBack1.Enabled = True
+            Button1.Enabled = True
             Exit Sub
         End If
 
-        'Progressbar zurücksetzen und Max-Wert berechnen
-        progBar.Value = 0
         progMax = 4
         partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
         partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
@@ -65,6 +71,9 @@ Public Class Exporter
                 'Sicherungsdatei verwenden
                 My.Computer.FileSystem.RenameFile(partNamePath + "S4ve.CATPart", partName + ".CATPart")
                 MessageBox.Show(partName + " konnte nicht gespeichert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                'UI aktivieren
+                btnBack1.Enabled = True
+                Button1.Enabled = True
                 Exit Sub
             End If
         End While
@@ -94,6 +103,9 @@ Public Class Exporter
             'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
             If timeElapsed > 6 Then
                 MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                'UI aktivieren
+                btnBack1.Enabled = True
+                Button1.Enabled = True
                 Exit Sub
             End If
         End While
@@ -129,6 +141,9 @@ Public Class Exporter
 
         '##ProgressUpdate
         progUpdate(partName + ".CATDrawing fertig")
+        'UI aktivieren
+        btnBack1.Enabled = True
+        Button1.Enabled = True
     End Sub
 
     'Output mit Dialog festlegen
@@ -165,5 +180,10 @@ Public Class Exporter
 
         If progValue > 100 Then progValue = 100
         progBar.Value = progValue
+    End Sub
+
+    Private Sub btnBack1_Click(sender As Object, e As EventArgs) Handles btnBack1.Click
+        Main.Show()
+        Me.Close()
     End Sub
 End Class
