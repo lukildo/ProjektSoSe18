@@ -41,6 +41,11 @@ Partial Class Nesting
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
         Me.btnBack = New System.Windows.Forms.Button()
+        Me.txtBoxHeight = New System.Windows.Forms.TextBox()
+        Me.txtBoxWidth = New System.Windows.Forms.TextBox()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.lblError = New System.Windows.Forms.Label()
         CType(Me.dataGrid, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -136,7 +141,7 @@ Partial Class Nesting
         'btnNewSheet
         '
         Me.btnNewSheet.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.btnNewSheet.Location = New System.Drawing.Point(327, 296)
+        Me.btnNewSheet.Location = New System.Drawing.Point(327, 304)
         Me.btnNewSheet.Name = "btnNewSheet"
         Me.btnNewSheet.Size = New System.Drawing.Size(202, 30)
         Me.btnNewSheet.TabIndex = 0
@@ -148,8 +153,8 @@ Partial Class Nesting
         Me.comboMaterial.AutoCompleteCustomSource.AddRange(New String() {"Papier", "Holz", "Plexiglas"})
         Me.comboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.comboMaterial.FormattingEnabled = True
-        Me.comboMaterial.Items.AddRange(New Object() {"Papier", "Holz", "Plexiglas"})
-        Me.comboMaterial.Location = New System.Drawing.Point(408, 231)
+        Me.comboMaterial.Items.AddRange(New Object() {"Fotokarton", "Holz", "Plexiglas", "Benutzerdefiniert"})
+        Me.comboMaterial.Location = New System.Drawing.Point(408, 222)
         Me.comboMaterial.Name = "comboMaterial"
         Me.comboMaterial.Size = New System.Drawing.Size(121, 21)
         Me.comboMaterial.TabIndex = 2
@@ -158,7 +163,7 @@ Partial Class Nesting
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label1.Location = New System.Drawing.Point(324, 231)
+        Me.Label1.Location = New System.Drawing.Point(324, 223)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(62, 17)
         Me.Label1.TabIndex = 3
@@ -168,7 +173,7 @@ Partial Class Nesting
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label2.Location = New System.Drawing.Point(324, 266)
+        Me.Label2.Location = New System.Drawing.Point(324, 251)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(78, 17)
         Me.Label2.TabIndex = 3
@@ -179,8 +184,8 @@ Partial Class Nesting
         Me.comboSize.AutoCompleteCustomSource.AddRange(New String() {"Papier", "Holz", "Plexiglas"})
         Me.comboSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.comboSize.FormattingEnabled = True
-        Me.comboSize.Items.AddRange(New Object() {"DIN A1"})
-        Me.comboSize.Location = New System.Drawing.Point(408, 266)
+        Me.comboSize.Items.AddRange(New Object() {"DIN A1", "DIN A3"})
+        Me.comboSize.Location = New System.Drawing.Point(408, 249)
         Me.comboSize.Name = "comboSize"
         Me.comboSize.Size = New System.Drawing.Size(121, 21)
         Me.comboSize.TabIndex = 2
@@ -225,11 +230,68 @@ Partial Class Nesting
         Me.btnBack.Text = "Zurück"
         Me.btnBack.UseVisualStyleBackColor = True
         '
+        'txtBoxHeight
+        '
+        Me.txtBoxHeight.AcceptsReturn = True
+        Me.txtBoxHeight.CausesValidation = False
+        Me.txtBoxHeight.Enabled = False
+        Me.txtBoxHeight.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
+        Me.txtBoxHeight.Location = New System.Drawing.Point(407, 278)
+        Me.txtBoxHeight.MaxLength = 4
+        Me.txtBoxHeight.Name = "txtBoxHeight"
+        Me.txtBoxHeight.Size = New System.Drawing.Size(40, 21)
+        Me.txtBoxHeight.TabIndex = 4
+        Me.txtBoxHeight.Text = "594"
+        '
+        'txtBoxWidth
+        '
+        Me.txtBoxWidth.Enabled = False
+        Me.txtBoxWidth.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
+        Me.txtBoxWidth.Location = New System.Drawing.Point(462, 278)
+        Me.txtBoxWidth.Name = "txtBoxWidth"
+        Me.txtBoxWidth.Size = New System.Drawing.Size(40, 21)
+        Me.txtBoxWidth.TabIndex = 4
+        Me.txtBoxWidth.Text = "841"
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
+        Me.Label3.Location = New System.Drawing.Point(447, 279)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(15, 18)
+        Me.Label3.TabIndex = 5
+        Me.Label3.Text = "x"
+        Me.Label3.UseMnemonic = False
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
+        Me.Label4.Location = New System.Drawing.Point(502, 282)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(30, 17)
+        Me.Label4.TabIndex = 5
+        Me.Label4.Text = "mm"
+        Me.Label4.UseMnemonic = False
+        '
+        'lblError
+        '
+        Me.lblError.AutoSize = True
+        Me.lblError.ForeColor = System.Drawing.Color.Red
+        Me.lblError.Location = New System.Drawing.Point(306, 273)
+        Me.lblError.Name = "lblError"
+        Me.lblError.Size = New System.Drawing.Size(99, 26)
+        Me.lblError.TabIndex = 6
+        Me.lblError.Text = "Werte zwischen " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "10mm und 1500mm"
+        '
         'Nesting
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(565, 346)
+        Me.Controls.Add(Me.txtBoxWidth)
+        Me.Controls.Add(Me.txtBoxHeight)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.comboSize)
@@ -241,6 +303,9 @@ Partial Class Nesting
         Me.Controls.Add(Me.btnNewSheet)
         Me.Controls.Add(Me.btnBack)
         Me.Controls.Add(Me.btnSelect)
+        Me.Controls.Add(Me.Label4)
+        Me.Controls.Add(Me.Label3)
+        Me.Controls.Add(Me.lblError)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
@@ -270,4 +335,9 @@ Partial Class Nesting
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
     Friend WithEvents btnBack As Button
+    Friend WithEvents txtBoxHeight As TextBox
+    Friend WithEvents txtBoxWidth As TextBox
+    Friend WithEvents Label3 As Label
+    Friend WithEvents Label4 As Label
+    Friend WithEvents lblError As Label
 End Class

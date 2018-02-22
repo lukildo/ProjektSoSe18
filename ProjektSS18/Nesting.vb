@@ -1,4 +1,8 @@
-﻿Public Class Nesting
+﻿Imports System.Runtime.InteropServices
+
+Public Class Nesting
+    Dim otherTrue As Boolean
+
     Private Sub Nesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         dataGrid.Rows.Add("Grundplatte", "200x200 mm", "1", "Geladen", "Einfügen", "Löschen")
         dataGrid.Rows.Add("Gelenk1", "200x22 mm", "1", "Geladen", "Einfügen", "Löschen")
@@ -8,8 +12,11 @@
         dataGrid.Rows.Add("Blech1", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
         dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
 
+        'Startwerte setzen
+        lblError.Visible = False
         comboMaterial.SelectedIndex = 0
         comboSize.SelectedIndex = 0
+        otherTrue = True
     End Sub
 
     Private Sub Nesting_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -20,5 +27,131 @@
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
         Main.Show()
         Me.Close()
+    End Sub
+
+    Private Sub comboMaterial_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comboMaterial.SelectedIndexChanged
+        'Auswahl dem Material anpassen
+        comboSize.Enabled = True
+        txtBoxHeight.Enabled = False
+        txtBoxWidth.Enabled = False
+
+        If comboMaterial.SelectedItem = "Fotokarton" Then
+            comboSize.Items.Clear()
+            comboSize.Items.AddRange({"DIN A1", "DIN A3"})
+        ElseIf comboMaterial.SelectedItem = "Holz" Then
+            comboSize.Items.Clear()
+            comboSize.Items.AddRange({"DIN A0", "DIN A1"})
+        ElseIf comboMaterial.SelectedItem = "Plexiglas" Then
+            comboSize.Items.Clear()
+            comboSize.Items.AddRange({"DIN A1"})
+        ElseIf comboMaterial.SelectedItem = "Benutzerdefiniert" Then
+            comboSize.Enabled = False
+            comboSize.Items.Clear()
+            comboSize.Items.AddRange({"Benutzerdefiniert"})
+            txtBoxHeight.Enabled = True
+            txtBoxWidth.Enabled = True
+        End If
+
+        comboSize.SelectedIndex = 0
+    End Sub
+
+    Private Sub comboSize_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comboSize.SelectedIndexChanged
+        If comboSize.SelectedItem = "DIN A0" Then
+            txtBoxHeight.Text = 841
+            txtBoxWidth.Text = 1189
+        ElseIf comboSize.SelectedItem = "DIN A1" Then
+            txtBoxHeight.Text = 594
+            txtBoxWidth.Text = 841
+        ElseIf comboSize.SelectedItem = "DIN A2" Then
+            txtBoxHeight.Text = 420
+            txtBoxWidth.Text = 594
+        ElseIf comboSize.SelectedItem = "DIN A3" Then
+            txtBoxHeight.Text = 297
+            txtBoxWidth.Text = 420
+        ElseIf comboSize.SelectedItem = "DIN A4" Then
+            txtBoxHeight.Text = 210
+            txtBoxWidth.Text = 297
+        End If
+    End Sub
+
+    'Benutzereingaben prüfen
+    Private Sub txtBoxHeight_TextChanged(sender As Object, e As EventArgs) Handles txtBoxHeight.TextChanged
+        Dim value As Integer
+
+        If Int32.TryParse(txtBoxHeight.Text, value) Then
+            If value >= 10 And value <= 1500 Then
+                If otherTrue Then
+                    btnNewSheet.Enabled = True
+                    lblError.Visible = False
+                Else
+                    otherTrue = True
+                    Call txtBoxWidth_TextChanged(Nothing, Nothing)
+                End If
+            Else
+                otherTrue = False
+                btnNewSheet.Enabled = False
+                lblError.Visible = True
+            End If
+        End If
+    End Sub
+    'Benutzereingaben überprüfen
+    Private Sub txtBoxWidth_TextChanged(sender As Object, e As EventArgs) Handles txtBoxWidth.TextChanged
+        Dim value As Integer
+
+        If Int32.TryParse(txtBoxWidth.Text, value) Then
+            If value >= 10 And value <= 1500 Then
+                If otherTrue Then
+                    btnNewSheet.Enabled = True
+                    lblError.Visible = False
+                Else
+                    otherTrue = True
+                    Call txtBoxHeight_TextChanged(Nothing, Nothing)
+                End If
+            Else
+                otherTrue = False
+                btnNewSheet.Enabled = False
+                lblError.Visible = True
+            End If
+        End If
+    End Sub
+
+    Private Sub btnNewSheet_Click(sender As Object, e As EventArgs) Handles btnNewSheet.Click
+
+        Dim CATIA As INFITF.Application
+
+        'Catia Verbindung aufbauen
+        Try
+            CATIA = Marshal.GetActiveObject("CATIA.Application")
+        Catch ex As COMException
+            'Fehlermeldung bei Verbindungsproblem und Programmende
+            MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
+
+        If Not CATIA.GetWorkbenchId.Equals("Drw") Then
+            'Fehlermeldung
+            MessageBox.Show("Keine Zeichnung geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
+
+        Dim sheets As DrawingSheets
+        sheets = CATIA.ActiveDocument.Sheets
+        sheets.Add("Blatt " & sheets.Count + 1 & " - " & comboSize.Text & " - " & comboMaterial.Text)
+
+        If comboSize.SelectedItem = "DIN A0" Then
+            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA0
+        ElseIf comboSize.SelectedItem = "DIN A1" Then
+            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA1
+        ElseIf comboSize.SelectedItem = "DIN A2" Then
+            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA2
+        ElseIf comboSize.SelectedItem = "DIN A3" Then
+            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA3
+        ElseIf comboSize.SelectedItem = "DIN A4" Then
+            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA4
+        ElseIf comboSize.SelectedItem = "Benutzerdefiniert" Then
+            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperUser
+            sheets.ActiveSheet.SetPaperHeight(txtBoxHeight.Text)
+            sheets.ActiveSheet.SetPaperWidth(txtBoxWidth.Text)
+        End If
     End Sub
 End Class
