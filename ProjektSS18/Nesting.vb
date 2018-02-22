@@ -128,14 +128,15 @@ Public Class Nesting
             Exit Sub
         End Try
 
-        If Not CATIA.GetWorkbenchId.Equals("Drw") Then
+        Dim sheets As DrawingSheets
+        Try
+            sheets = CATIA.ActiveDocument.Sheets
+        Catch ex As Exception
             'Fehlermeldung
             MessageBox.Show("Keine Zeichnung geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
-        End If
+        End Try
 
-        Dim sheets As DrawingSheets
-        sheets = CATIA.ActiveDocument.Sheets
         sheets.Add("Blatt " & sheets.Count + 1 & " - " & comboSize.Text & " - " & comboMaterial.Text)
 
         If comboSize.SelectedItem = "DIN A0" Then
@@ -153,5 +154,9 @@ Public Class Nesting
             sheets.ActiveSheet.SetPaperHeight(txtBoxHeight.Text)
             sheets.ActiveSheet.SetPaperWidth(txtBoxWidth.Text)
         End If
+    End Sub
+
+    Private Sub btnSelect_Click(sender As Object, e As EventArgs) Handles btnSelect.Click
+        'CATDrawings laden und in Array laden
     End Sub
 End Class
