@@ -4,13 +4,13 @@ Public Class Nesting
     Dim otherTrue As Boolean
 
     Private Sub Nesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        dataGrid.Rows.Add("Grundplatte", "200x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        dataGrid.Rows.Add("Gelenk1", "200x22 mm", "1", "Geladen", "Einfügen", "Löschen")
-        dataGrid.Rows.Add("Gelenk2", "340x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        dataGrid.Rows.Add("Blech", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
-        dataGrid.Rows.Add("Blech1", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Grundplatte", "200x200 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Gelenk1", "200x22 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Gelenk2", "340x200 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Blech", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Blech1", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
+        'dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
 
         'Startwerte setzen
         lblError.Visible = False
@@ -158,5 +158,69 @@ Public Class Nesting
 
     Private Sub btnSelect_Click(sender As Object, e As EventArgs) Handles btnSelect.Click
         'CATDrawings laden und in Array laden
+        Dim openDialog As New OpenFileDialog
+        Dim fileName As String
+        Dim CATIA As INFITF.Application
+        Dim i As Integer = 0
+
+        openDialog.Filter = "CATIA Zeichnung|*.CATDrawing"
+        openDialog.Multiselect = True
+
+        If openDialog.ShowDialog = DialogResult.OK Then
+
+            'Catia Verbindung aufbauen
+            Try
+                CATIA = Marshal.GetActiveObject("CATIA.Application")
+            Catch ex As COMException
+                'Fehlermeldung bei Verbindungsproblem und Programmende
+                MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
+
+            'Alle ausgewählten Dateien durchgehen
+            For Each fileName In openDialog.FileNames
+                Dim shapeDrawing1 As New ShapeDrawing
+                Dim drwTest As DrawingView
+
+                CATIA.Documents.Open(fileName)
+                shapeDrawing1.Name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
+                shapeDrawing1.status = "Geladen"
+                shapeDrawing1.sheetNumber = "/"
+                CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.setViewName("", shapeDrawing1.Name, "")
+                drwTest = CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView
+                shapeDrawing1.drwView = drwTest
+                System.Console.WriteLine(drwTest.GeometricElements.Count)
+                'Variant Array
+                Dim arr(4)
+                'Größe der BoundingBox
+                CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.size(arr)
+                'Xmax - Xmin
+                shapeDrawing1.sizeX = arr(1) - arr(0)
+                'Ymax-Ymin
+                shapeDrawing1.sizeY = arr(3) - arr(2)
+                shapeDrawings(i) = shapeDrawing1
+                'CATIA.ActiveDocument.Close()
+                'Daten in das globale Array übernehmen
+
+                i = i + 1
+
+                'Daten darstellen
+                shapeDrawing1.updateGrid(dataGrid)
+            Next fileName
+        Else
+            'Abbrechen
+            Exit Sub
+        End If
+    End Sub
+
+    Private Sub dataGrid_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dataGrid.CellContentClick
+        If e.ColumnIndex = 4 Then
+            Dim i As Integer
+            System.Console.WriteLine(shapeDrawings(e.RowIndex).drwView.GeometricElements.Count)
+            System.Console.WriteLine(shapeDrawings(e.RowIndex).Name)
+            For i = 1 To shapeDrawings(e.RowIndex).drwView.GeometricElements.Count
+                System.Console.WriteLine(shapeDrawings(e.RowIndex).drwView.GeometricElements.Item(i).Name)
+            Next i
+        End If
     End Sub
 End Class

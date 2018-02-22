@@ -23,15 +23,10 @@ Partial Class Nesting
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Nesting))
         Me.btnSelect = New System.Windows.Forms.Button()
         Me.dataGrid = New System.Windows.Forms.DataGridView()
-        Me.Column1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Column2 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Column4 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.Column3 = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.btnColumn1 = New System.Windows.Forms.DataGridViewButtonColumn()
-        Me.btnColumn2 = New System.Windows.Forms.DataGridViewButtonColumn()
         Me.btnNewSheet = New System.Windows.Forms.Button()
         Me.comboMaterial = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
@@ -46,6 +41,12 @@ Partial Class Nesting
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.lblError = New System.Windows.Forms.Label()
+        Me.Column1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.Column2 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.Column4 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.Column3 = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.btnColumn1 = New System.Windows.Forms.DataGridViewButtonColumn()
+        Me.btnColumn2 = New System.Windows.Forms.DataGridViewButtonColumn()
         CType(Me.dataGrid, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -87,64 +88,13 @@ Partial Class Nesting
         Me.dataGrid.Size = New System.Drawing.Size(538, 159)
         Me.dataGrid.TabIndex = 1
         '
-        'Column1
-        '
-        Me.Column1.DividerWidth = 1
-        Me.Column1.HeaderText = "Name"
-        Me.Column1.Name = "Column1"
-        Me.Column1.ReadOnly = True
-        '
-        'Column2
-        '
-        Me.Column2.DividerWidth = 1
-        Me.Column2.HeaderText = "Größe"
-        Me.Column2.Name = "Column2"
-        Me.Column2.ReadOnly = True
-        Me.Column2.Width = 80
-        '
-        'Column4
-        '
-        Me.Column4.DividerWidth = 1
-        Me.Column4.FillWeight = 50.0!
-        Me.Column4.HeaderText = "Blatt Nr."
-        Me.Column4.Name = "Column4"
-        Me.Column4.ReadOnly = True
-        Me.Column4.Width = 85
-        '
-        'Column3
-        '
-        Me.Column3.DividerWidth = 1
-        Me.Column3.HeaderText = "Status"
-        Me.Column3.Name = "Column3"
-        Me.Column3.ReadOnly = True
-        Me.Column3.Width = 120
-        '
-        'btnColumn1
-        '
-        Me.btnColumn1.DividerWidth = 1
-        Me.btnColumn1.HeaderText = ""
-        Me.btnColumn1.Name = "btnColumn1"
-        Me.btnColumn1.ReadOnly = True
-        Me.btnColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.btnColumn1.Text = "Einfügen"
-        Me.btnColumn1.Width = 65
-        '
-        'btnColumn2
-        '
-        Me.btnColumn2.DividerWidth = 1
-        Me.btnColumn2.HeaderText = ""
-        Me.btnColumn2.Name = "btnColumn2"
-        Me.btnColumn2.ReadOnly = True
-        Me.btnColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.btnColumn2.Width = 65
-        '
         'btnNewSheet
         '
         Me.btnNewSheet.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
         Me.btnNewSheet.Location = New System.Drawing.Point(327, 304)
         Me.btnNewSheet.Name = "btnNewSheet"
         Me.btnNewSheet.Size = New System.Drawing.Size(202, 30)
-        Me.btnNewSheet.TabIndex = 0
+        Me.btnNewSheet.TabIndex = 1
         Me.btnNewSheet.Text = "Neues Blatt hinzufügen"
         Me.btnNewSheet.UseVisualStyleBackColor = True
         '
@@ -197,6 +147,7 @@ Partial Class Nesting
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(204, 31)
         Me.Button1.TabIndex = 0
+        Me.Button1.TabStop = False
         Me.Button1.Text = "Liste aktualisieren"
         Me.Button1.UseVisualStyleBackColor = True
         '
@@ -207,6 +158,7 @@ Partial Class Nesting
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(204, 31)
         Me.Button2.TabIndex = 0
+        Me.Button2.TabStop = False
         Me.Button2.Text = "Alles einfügen"
         Me.Button2.UseVisualStyleBackColor = True
         '
@@ -217,6 +169,7 @@ Partial Class Nesting
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(204, 31)
         Me.Button3.TabIndex = 0
+        Me.Button3.TabStop = False
         Me.Button3.Text = "Automatisch anordnen"
         Me.Button3.UseVisualStyleBackColor = True
         '
@@ -226,7 +179,7 @@ Partial Class Nesting
         Me.btnBack.Location = New System.Drawing.Point(474, 7)
         Me.btnBack.Name = "btnBack"
         Me.btnBack.Size = New System.Drawing.Size(79, 26)
-        Me.btnBack.TabIndex = 0
+        Me.btnBack.TabIndex = 1
         Me.btnBack.Text = "Zurück"
         Me.btnBack.UseVisualStyleBackColor = True
         '
@@ -285,6 +238,59 @@ Partial Class Nesting
         Me.lblError.TabIndex = 6
         Me.lblError.Text = "Werte zwischen " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "10mm und 1500mm"
         '
+        'Column1
+        '
+        Me.Column1.DividerWidth = 1
+        Me.Column1.HeaderText = "Name"
+        Me.Column1.Name = "Column1"
+        Me.Column1.ReadOnly = True
+        '
+        'Column2
+        '
+        Me.Column2.DividerWidth = 1
+        Me.Column2.HeaderText = "Größe"
+        Me.Column2.Name = "Column2"
+        Me.Column2.ReadOnly = True
+        Me.Column2.Width = 80
+        '
+        'Column4
+        '
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        Me.Column4.DefaultCellStyle = DataGridViewCellStyle2
+        Me.Column4.DividerWidth = 1
+        Me.Column4.FillWeight = 50.0!
+        Me.Column4.HeaderText = "Blatt Nr."
+        Me.Column4.Name = "Column4"
+        Me.Column4.ReadOnly = True
+        Me.Column4.Width = 85
+        '
+        'Column3
+        '
+        Me.Column3.DividerWidth = 1
+        Me.Column3.HeaderText = "Status"
+        Me.Column3.Name = "Column3"
+        Me.Column3.ReadOnly = True
+        Me.Column3.Width = 120
+        '
+        'btnColumn1
+        '
+        Me.btnColumn1.DividerWidth = 1
+        Me.btnColumn1.HeaderText = ""
+        Me.btnColumn1.Name = "btnColumn1"
+        Me.btnColumn1.ReadOnly = True
+        Me.btnColumn1.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.btnColumn1.Text = "Einfügen"
+        Me.btnColumn1.Width = 65
+        '
+        'btnColumn2
+        '
+        Me.btnColumn2.DividerWidth = 1
+        Me.btnColumn2.HeaderText = ""
+        Me.btnColumn2.Name = "btnColumn2"
+        Me.btnColumn2.ReadOnly = True
+        Me.btnColumn2.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.btnColumn2.Width = 65
+        '
         'Nesting
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -320,12 +326,6 @@ Partial Class Nesting
 
     Friend WithEvents btnSelect As Button
     Friend WithEvents dataGrid As DataGridView
-    Friend WithEvents Column1 As DataGridViewTextBoxColumn
-    Friend WithEvents Column2 As DataGridViewTextBoxColumn
-    Friend WithEvents Column4 As DataGridViewTextBoxColumn
-    Friend WithEvents Column3 As DataGridViewTextBoxColumn
-    Friend WithEvents btnColumn1 As DataGridViewButtonColumn
-    Friend WithEvents btnColumn2 As DataGridViewButtonColumn
     Friend WithEvents btnNewSheet As Button
     Friend WithEvents comboMaterial As ComboBox
     Friend WithEvents Label1 As Label
@@ -340,4 +340,10 @@ Partial Class Nesting
     Friend WithEvents Label3 As Label
     Friend WithEvents Label4 As Label
     Friend WithEvents lblError As Label
+    Friend WithEvents Column1 As DataGridViewTextBoxColumn
+    Friend WithEvents Column2 As DataGridViewTextBoxColumn
+    Friend WithEvents Column4 As DataGridViewTextBoxColumn
+    Friend WithEvents Column3 As DataGridViewTextBoxColumn
+    Friend WithEvents btnColumn1 As DataGridViewButtonColumn
+    Friend WithEvents btnColumn2 As DataGridViewButtonColumn
 End Class
