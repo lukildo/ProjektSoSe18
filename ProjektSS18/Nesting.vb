@@ -25,8 +25,21 @@ Public Class Nesting
     End Sub
 
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
-        Main.Show()
-        Me.Close()
+        'Abfrage, wenn schon Daten geladen worden sind
+        If dataGrid.Rows.Count > 0 Then
+            Dim result As DialogResult
+            result = MessageBox.Show("Sind Sie sicher? Alle geladenen Daten werden gelöscht.", "Sicher?", MessageBoxButtons.YesNo)
+
+            If result = DialogResult.Yes Then
+                Main.Show()
+                Me.Close()
+            End If
+        Else
+            Main.Show()
+            Me.Close()
+        End If
+
+
     End Sub
 
     Private Sub comboMaterial_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comboMaterial.SelectedIndexChanged

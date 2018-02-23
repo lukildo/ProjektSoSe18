@@ -142,6 +142,7 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="Resources\Anleitung.pdf" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="DRAFTINGITF">
