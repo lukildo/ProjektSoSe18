@@ -13,6 +13,7 @@ Public Class Main
     'Anleitung öffnen
     Private Sub btnInstructions_Click(sender As Object, e As EventArgs) Handles btnInstructions.Click
         Dim myTempFile As String = IO.Path.Combine(IO.Path.GetTempPath, "Anleitung.pdf")
+        'Resource als Datei im Temp-Ordner speichern
         My.Computer.FileSystem.WriteAllBytes(myTempFile, My.Resources.Anleitung, False)
         Process.Start(myTempFile)
     End Sub

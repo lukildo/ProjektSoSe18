@@ -7,8 +7,8 @@
     Private m_originX As Double
     Private m_originY As Double
     Private m_status As String
-    Private m_sheetNumber As String
     Private m_drwView As DrawingView
+    Private m_count As Integer
 
     'Konstruktor
     Public Sub New()
@@ -70,15 +70,6 @@
         End Set
     End Property
 
-    Public Property sheetNumber As String
-        Get
-            Return m_sheetNumber
-        End Get
-        Set(value As String)
-            m_sheetNumber = value
-        End Set
-    End Property
-
     Public Property drwView As DrawingView
         Get
             Return m_drwView
@@ -87,11 +78,32 @@
             m_drwView = value
         End Set
     End Property
+
+    Public Property count As Integer
+        Get
+            Return m_count
+        End Get
+        Set(value As Integer)
+            m_count = value
+        End Set
+    End Property
+
     'aktuelle Daten in das übergebene DataGrid eintragen
     Public Sub updateGrid(ByVal dataGrid As DataGridView)
+        Dim i As Integer
+
+        'Reihe ändern, falls der Eintrag schon besteht
+        For i = 1 To dataGrid.Rows.Count
+            If dataGrid.Rows(i - 1).Cells(0).Value = m_name Then
+                dataGrid.Rows(i - 1).Cells(2).Value = m_count
+                dataGrid.Rows(i - 1).Cells(3).Value = m_status
+                Exit Sub
+            End If
+        Next i
+
         Dim size As String
 
         size = Math.Round(m_sizeX) & " x " & Math.Round(m_sizeY) & " mm"
-        dataGrid.Rows.Add(m_name, size, m_sheetNumber, m_status, "Einfügen", "Löschen")
+        dataGrid.Rows.Add(m_name, size, m_count, m_status, "Einfügen", "Löschen")
     End Sub
 End Class

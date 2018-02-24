@@ -151,22 +151,7 @@ Public Class Nesting
         End Try
 
         sheets.Add("Blatt " & sheets.Count + 1 & " - " & comboSize.Text & " - " & comboMaterial.Text)
-
-        If comboSize.SelectedItem = "DIN A0" Then
-            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA0
-        ElseIf comboSize.SelectedItem = "DIN A1" Then
-            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA1
-        ElseIf comboSize.SelectedItem = "DIN A2" Then
-            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA2
-        ElseIf comboSize.SelectedItem = "DIN A3" Then
-            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA3
-        ElseIf comboSize.SelectedItem = "DIN A4" Then
-            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA4
-        ElseIf comboSize.SelectedItem = "Benutzerdefiniert" Then
-            sheets.ActiveSheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperUser
-            sheets.ActiveSheet.SetPaperHeight(txtBoxHeight.Text)
-            sheets.ActiveSheet.SetPaperWidth(txtBoxWidth.Text)
-        End If
+        setSheetSize(sheets.ActiveSheet)
     End Sub
 
     Private Sub btnSelect_Click(sender As Object, e As EventArgs) Handles btnSelect.Click
@@ -174,35 +159,64 @@ Public Class Nesting
         Dim openDialog As New OpenFileDialog
         Dim fileName As String
         Dim CATIA As INFITF.Application
-        Dim i As Integer = 0
+        Dim i As Integer
+
+        'Catia Verbindung aufbauen
+        Try
+            CATIA = Marshal.GetActiveObject("CATIA.Application")
+        Catch ex As COMException
+            'Fehlermeldung bei Verbindungsproblem und Programmende
+            MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
 
         openDialog.Filter = "CATIA Zeichnung|*.CATDrawing"
         openDialog.Multiselect = True
 
         If openDialog.ShowDialog = DialogResult.OK Then
+            'Zeichnung neu erstellen
+            Dim mainIndex As Integer
+            Dim newIndex As Integer
+            Dim sel As Selection
+            Dim sheets As DrawingSheets
 
-            'Catia Verbindung aufbauen
-            Try
-                CATIA = Marshal.GetActiveObject("CATIA.Application")
-            Catch ex As COMException
-                'Fehlermeldung bei Verbindungsproblem und Programmende
-                MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                Exit Sub
-            End Try
+            If dataGrid.Rows.Count = 0 Then
+                CATIA.Documents.Add("Drawing")
+                sheets = CATIA.ActiveDocument.Sheets
+                sheets.Add("Blatt 1 - " & comboSize.Text & " - " & comboMaterial.Text)
+                sheets.Remove(1)
+                setSheetSize(sheets.ActiveSheet)
+                CATIA.ActiveWindow.ActiveViewer.Reframe()
+                'Index bestimmen für spätere Dokumentenwechsel
+                For i = 1 To CATIA.Documents.Count
+                    If CATIA.Documents.Item(i).Equals(CATIA.ActiveDocument) Then
+                        mainIndex = i
+                        Exit For
+                    End If
+                Next i
+            End If
 
             'Alle ausgewählten Dateien durchgehen
             For Each fileName In openDialog.FileNames
+                'Neues Objekt erzeugen
                 Dim shapeDrawing1 As New ShapeDrawing
-                Dim drwTest As DrawingView
-
+                'Daten übernehmen und anpassen
                 CATIA.Documents.Open(fileName)
                 shapeDrawing1.Name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
                 shapeDrawing1.status = "Geladen"
-                shapeDrawing1.sheetNumber = "/"
-                CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.setViewName("", shapeDrawing1.Name, "")
-                drwTest = CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView
-                shapeDrawing1.drwView = drwTest
-                System.Console.WriteLine(drwTest.GeometricElements.Count)
+                shapeDrawing1.count = 1
+                sheets = CATIA.ActiveDocument.Sheets
+                sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.Name, "")
+
+
+                'Dokumentenindex bestimmen
+                For i = 1 To CATIA.Documents.Count
+                    If CATIA.Documents.Item(i).Equals(CATIA.ActiveDocument) Then
+                        newIndex = i
+                        Exit For
+                    End If
+                Next i
+
                 'Variant Array
                 Dim arr(4)
                 'Größe der BoundingBox
@@ -211,12 +225,23 @@ Public Class Nesting
                 shapeDrawing1.sizeX = arr(1) - arr(0)
                 'Ymax-Ymin
                 shapeDrawing1.sizeY = arr(3) - arr(2)
-                shapeDrawings(i) = shapeDrawing1
-                'CATIA.ActiveDocument.Close()
+                'DrawingView kopieren
+                sel = CATIA.ActiveDocument.Selection
+                sel.Add(sheets.ActiveSheet.Views.ActiveView)
+                sel.Copy()
+                'Dokument wechseln und einfügen
+                CATIA.Documents.Item(mainIndex).Activate()
+                sheets = CATIA.ActiveDocument.Sheets
+                sel = CATIA.ActiveDocument.Selection
+                sel.Add(sheets.Item(sheets.Count))
+                sel.Paste()
+                sel.Clear()
+
+                shapeDrawing1.drwView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
+                CATIA.Documents.Item(newIndex).Close()
+
                 'Daten in das globale Array übernehmen
-
-                i = i + 1
-
+                shapeDrawings.Add(shapeDrawing1)
                 'Daten darstellen
                 shapeDrawing1.updateGrid(dataGrid)
             Next fileName
@@ -227,13 +252,86 @@ Public Class Nesting
     End Sub
 
     Private Sub dataGrid_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dataGrid.CellContentClick
+        'Einfügen
         If e.ColumnIndex = 4 Then
-            Dim i As Integer
-            System.Console.WriteLine(shapeDrawings(e.RowIndex).drwView.GeometricElements.Count)
-            System.Console.WriteLine(shapeDrawings(e.RowIndex).Name)
-            For i = 1 To shapeDrawings(e.RowIndex).drwView.GeometricElements.Count
-                System.Console.WriteLine(shapeDrawings(e.RowIndex).drwView.GeometricElements.Item(i).Name)
-            Next i
+            Dim shapeDrawing1 As ShapeDrawing
+            Dim CATIA As INFITF.Application
+
+            'Catia Verbindung aufbauen
+            Try
+                CATIA = Marshal.GetActiveObject("CATIA.Application")
+            Catch ex As COMException
+                'Fehlermeldung bei Verbindungsproblem und Programmende
+                MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
+
+            'Objekt aus der Liste finden
+            shapeDrawing1 = shapeDrawings.Find(Function(x) x.Name = dataGrid.Rows(e.RowIndex).Cells(0).Value)
+            If shapeDrawing1 IsNot Nothing Then
+                Dim sel As Selection
+
+                sel = CATIA.ActiveDocument.Selection
+                sel.Clear()
+                sel.Add(shapeDrawing1.drwView)
+                sel.Copy()
+                sel.Remove(1)
+                sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet)
+                sel.Paste()
+                sel.Clear()
+
+                shapeDrawing1.count = shapeDrawing1.count + 1
+                shapeDrawing1.updateGrid(dataGrid)
+            End If
+            'Löschen
+        ElseIf e.ColumnIndex = 5 Then
+            Dim shapeDrawing1 As ShapeDrawing
+            Dim CATIA As INFITF.Application
+
+            'Catia Verbindung aufbauen
+            Try
+                CATIA = Marshal.GetActiveObject("CATIA.Application")
+            Catch ex As COMException
+                'Fehlermeldung bei Verbindungsproblem und Programmende
+                MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
+
+            'Objekt aus der Liste finden
+            shapeDrawing1 = shapeDrawings.Find(Function(x) x.Name = dataGrid.Rows(e.RowIndex).Cells(0).Value)
+            If shapeDrawing1 IsNot Nothing Then
+                Dim sel As Selection
+
+                sel = CATIA.ActiveDocument.Selection
+                sel.Clear()
+                sel.Search("Name=" & shapeDrawing1.Name & "*,all")
+                While sel.Count2 > 1
+                    sel.Remove(1)
+                End While
+                sel.Delete()
+                sel.Clear()
+
+                shapeDrawing1.count = shapeDrawing1.count - 1
+                shapeDrawing1.updateGrid(dataGrid)
+            End If
+        End If
+    End Sub
+
+    Public Sub setSheetSize(ByVal sheet As DrawingSheet)
+        If comboSize.SelectedItem = "DIN A0" Then
+            sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA0
+        ElseIf comboSize.SelectedItem = "DIN A1" Then
+            sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA1
+        ElseIf comboSize.SelectedItem = "DIN A2" Then
+            sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA2
+        ElseIf comboSize.SelectedItem = "DIN A3" Then
+            sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA3
+        ElseIf comboSize.SelectedItem = "DIN A4" Then
+            sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA4
+        ElseIf comboSize.SelectedItem = "Benutzerdefiniert" Then
+            sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperUser
+            sheet.SetPaperHeight(txtBoxHeight.Text)
+            sheet.SetPaperWidth(txtBoxWidth.Text)
         End If
     End Sub
 End Class
