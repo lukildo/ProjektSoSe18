@@ -7,7 +7,6 @@
     Private m_originX As Double
     Private m_originY As Double
     Private m_status As String
-    Private m_drwView As DrawingView
     Private m_count As Integer
 
     'Konstruktor
@@ -67,15 +66,6 @@
         End Get
         Set(value As String)
             m_status = value
-        End Set
-    End Property
-
-    Public Property drwView As DrawingView
-        Get
-            Return m_drwView
-        End Get
-        Set(value As DrawingView)
-            m_drwView = value
         End Set
     End Property
 

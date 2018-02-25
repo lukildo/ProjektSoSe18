@@ -207,8 +207,6 @@ Public Class Nesting
                 shapeDrawing1.count = 1
                 sheets = CATIA.ActiveDocument.Sheets
                 sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.Name, "")
-
-
                 'Dokumentenindex bestimmen
                 For i = 1 To CATIA.Documents.Count
                     If CATIA.Documents.Item(i).Equals(CATIA.ActiveDocument) Then
@@ -237,7 +235,6 @@ Public Class Nesting
                 sel.Paste()
                 sel.Clear()
 
-                shapeDrawing1.drwView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
                 CATIA.Documents.Item(newIndex).Close()
 
                 'Daten in das globale Array übernehmen
@@ -273,12 +270,29 @@ Public Class Nesting
 
                 sel = CATIA.ActiveDocument.Selection
                 sel.Clear()
-                sel.Add(shapeDrawing1.drwView)
+                sel.Search("Name=" & shapeDrawing1.Name & "*,all")
+                'Prüfen, ob gespeicherte Daten mit Daten in Catia übereinstimmen
+                If Not sel.Count2 = shapeDrawing1.count Then
+                    MessageBox.Show("Liste vorher aktualisieren!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    sel.Clear()
+                    Exit Sub
+                End If
+                'Nur ein DrawingView selektieren
+                While sel.Count2 > 1
+                    sel.Remove(1)
+                End While
+
                 sel.Copy()
                 sel.Remove(1)
                 sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet)
                 sel.Paste()
                 sel.Clear()
+
+                'Eingefügte DrawingView verschieben
+                Dim sheets As DrawingSheets = CATIA.ActiveDocument.Sheets
+                Dim drwView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
+                drwView.x = shapeDrawing1.originX
+                drwView.y = shapeDrawing1.originY
 
                 shapeDrawing1.count = shapeDrawing1.count + 1
                 shapeDrawing1.updateGrid(dataGrid)
@@ -305,6 +319,13 @@ Public Class Nesting
                 sel = CATIA.ActiveDocument.Selection
                 sel.Clear()
                 sel.Search("Name=" & shapeDrawing1.Name & "*,all")
+                'Prüfen, ob gespeicherte Daten mit Daten in Catia übereinstimmen
+                If Not sel.Count2 = shapeDrawing1.count Then
+                    MessageBox.Show("Liste vorher aktualisieren!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    sel.Clear()
+                    Exit Sub
+                End If
+                'Nur ein DrawingView löschen
                 While sel.Count2 > 1
                     sel.Remove(1)
                 End While
@@ -312,7 +333,13 @@ Public Class Nesting
                 sel.Clear()
 
                 shapeDrawing1.count = shapeDrawing1.count - 1
-                shapeDrawing1.updateGrid(dataGrid)
+                'Löschen, wenn alle Views gelöscht wurden
+                If shapeDrawing1.count = 0 Then
+                    shapeDrawings.Remove(shapeDrawing1)
+                    dataGrid.Rows.Remove(dataGrid.Rows(e.RowIndex))
+                Else
+                    shapeDrawing1.updateGrid(dataGrid)
+                End If
             End If
         End If
     End Sub
