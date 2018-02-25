@@ -179,6 +179,8 @@ Public Class Nesting
             Dim newIndex As Integer
             Dim sel As Selection
             Dim sheets As DrawingSheets
+            Dim alreadyLoaded As String = ""
+            Dim loadError As String = ""
 
             If dataGrid.Rows.Count = 0 Then
                 CATIA.Documents.Add("Drawing")
@@ -219,9 +221,27 @@ Public Class Nesting
             For Each fileName In openDialog.FileNames
                 'Neues Objekt erzeugen
                 Dim shapeDrawing1 As New ShapeDrawing
+                Dim shapeDrawingSaved As ShapeDrawing
                 'Daten übernehmen und anpassen
                 CATIA.Documents.Open(fileName)
                 shapeDrawing1.Name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
+                'Prüfen, ob die Datei schon geladen wurde
+                For Each shapeDrawingSaved In shapeDrawings
+                    If shapeDrawing1.Name = shapeDrawingSaved.Name Then
+                        If alreadyLoaded.Length > 0 Then
+                            alreadyLoaded = alreadyLoaded & ", " & shapeDrawing1.Name
+                        Else
+                            alreadyLoaded = shapeDrawing1.Name
+                        End If
+                        Exit For
+                    End If
+                Next
+                'Mit der nächsten Datei weitermachen, falls die Datei schon geladen wurde
+                If alreadyLoaded.Contains(shapeDrawing1.Name) Then
+                    CATIA.ActiveDocument.Close()
+                    Continue For
+                End If
+
                 shapeDrawing1.status = "Geladen"
                 shapeDrawing1.count = 1
                 sheets = CATIA.ActiveDocument.Sheets
@@ -264,6 +284,19 @@ Public Class Nesting
                 'Daten darstellen
                 shapeDrawing1.updateGrid(dataGrid)
             Next fileName
+
+            If alreadyLoaded.Length > 0 Or loadError.Length > 0 Then
+                Dim msg As String = ""
+                If alreadyLoaded.Length > 0 Then
+                    msg = alreadyLoaded & " wurden schon geladen." & Environment.NewLine
+                End If
+
+                If loadError.Length > 0 Then
+                    msg = msg & loadError & " konnten nicht geladen werden."
+                End If
+
+                MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
         Else
             'Abbrechen
             Exit Sub
