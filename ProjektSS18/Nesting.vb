@@ -175,7 +175,7 @@ Public Class Nesting
 
         If openDialog.ShowDialog = DialogResult.OK Then
             'Zeichnung neu erstellen
-            Dim mainIndex As Integer
+            Dim mainIndex As Integer = -1
             Dim newIndex As Integer
             Dim sel As Selection
             Dim sheets As DrawingSheets
@@ -194,6 +194,25 @@ Public Class Nesting
                         Exit For
                     End If
                 Next i
+            Else
+                'Dateien werden zur Zeichnung hinzugefügt
+                For i = 1 To CATIA.Documents.Count
+                    'Nach einer Zeichnung suchen
+                    Try
+                        sheets = CATIA.ActiveDocument.Sheets
+                    Catch ex As Exception
+                        Continue For
+                    End Try
+                    If sheets.Item(1).Name.Contains("Blatt 1 ") Then
+                        mainIndex = i
+                        Exit For
+                    End If
+                Next i
+            End If
+
+            If mainIndex = -1 Then
+                MessageBox.Show("Hauptzeichnung konnte nicht gefunden werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
             End If
 
             'Alle ausgewählten Dateien durchgehen
@@ -218,11 +237,14 @@ Public Class Nesting
                 'Variant Array
                 Dim arr(4)
                 'Größe der BoundingBox
-                CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.size(arr)
+                sheets.ActiveSheet.Views.ActiveView.Size(arr)
                 'Xmax - Xmin
                 shapeDrawing1.sizeX = arr(1) - arr(0)
                 'Ymax-Ymin
                 shapeDrawing1.sizeY = arr(3) - arr(2)
+                'Ursprungspunkte speichern
+                shapeDrawing1.originX = sheets.ActiveSheet.Views.ActiveView.x - arr(0)
+                shapeDrawing1.originY = sheets.ActiveSheet.Views.ActiveView.y - arr(2)
                 'DrawingView kopieren
                 sel = CATIA.ActiveDocument.Selection
                 sel.Add(sheets.ActiveSheet.Views.ActiveView)
