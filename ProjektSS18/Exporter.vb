@@ -76,7 +76,7 @@ Public Class Exporter
             Thread.Sleep(500)
             timeElapsed = timeElapsed + 1
             'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-            If timeElapsed > 5 Then
+            If timeElapsed > 6 Then
                 MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 'UI aktivieren
                 btnBack1.Enabled = True
@@ -112,11 +112,11 @@ Public Class Exporter
 
         'Datei überschreiben und speichern
         If File.Exists(outputPath) Then File.Delete(outputPath)
-            CATIA.ActiveDocument.SaveAs(outputPath)
-            CATIA.ActiveDocument.Close()
+        CATIA.ActiveDocument.SaveAs(outputPath)
+        CATIA.ActiveDocument.Close()
 
-            '##ProgressUpdate
-            progUpdate(partName + ".CATDrawing fertig")
+        '##ProgressUpdate
+        progUpdate(partName + ".CATDrawing fertig")
         'UI aktivieren
         btnBack1.Enabled = True
         Button1.Enabled = True
