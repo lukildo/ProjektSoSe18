@@ -76,7 +76,7 @@ Public Class Exporter
             Thread.Sleep(500)
             timeElapsed = timeElapsed + 1
             'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-            If timeElapsed > 6 Then
+            If timeElapsed > 5 Then
                 MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 'UI aktivieren
                 btnBack1.Enabled = True
