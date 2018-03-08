@@ -187,7 +187,7 @@ Public Class Exporter
                     'UI aktivieren
                     btnBack1.Enabled = True
                     Button1.Enabled = True
-                    'Part-Fenster wieder schließen
+                    'Part-Fenster wieder schließen            Problem: Wenn nur ein PART und kein Product exportiert wird auch das Fenster davon geschlossen (unschön) !!
                     CATIA.ActiveDocument.Close()
 
                 End If
