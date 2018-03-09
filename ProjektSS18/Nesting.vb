@@ -365,7 +365,7 @@ Public Class Nesting
 
                 sel = CATIA.ActiveDocument.Selection
                 sel.Clear()
-                sel.Search("Name=" & shapeDrawing1.Name & "*,all")
+                sel.Search("Name=" & shapeDrawing1.Name & "+Name=" & shapeDrawing1.Name & "[*" & ",all")
                 'Prüfen, ob gespeicherte Daten mit Daten in Catia übereinstimmen
                 If Not sel.Count2 = shapeDrawing1.count Then
                     MessageBox.Show("Liste vorher aktualisieren!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -435,6 +435,50 @@ Public Class Nesting
         System.Console.WriteLine("Outside: " & txtBoxDistanceOutside.Text)
         System.Console.WriteLine("Inside: " & txtBoxDistanceInside.Text)
     End Sub
+    'Aktualisieren
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+        Dim Catia As INFITF.Application
+        Dim sel As Selection
+        Dim i As Integer
+        Dim removeList As New List(Of ShapeDrawing)
 
+        'Catia Verbindung aufbauen
+        Try
+            CATIA = Marshal.GetActiveObject("CATIA.Application")
+        Catch ex As COMException
+            'Fehlermeldung bei Verbindungsproblem und Programmende
+            MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
 
+        sel = Catia.ActiveDocument.Selection
+
+        For Each shapeDrawing1 In shapeDrawings
+            sel.Clear()
+            sel.Search("Name=" & shapeDrawing1.Name & "+Name=" & shapeDrawing1.Name & "[*" & ",all")
+            'Gespeicherte Anzahl stimmt mit der aktuellen Anzahl überein
+            If shapeDrawing1.count = sel.Count2 Then Continue For
+
+            'Falls gelöscht auch Daten löschen
+            If sel.Count2 = 0 Then
+                removeList.Add(shapeDrawing1)
+                For i = 1 To dataGrid.Rows.Count
+                    If dataGrid.Rows(i - 1).Cells(0).Value = shapeDrawing1.Name Then
+                        dataGrid.Rows.Remove(dataGrid.Rows(i - 1))
+                        Exit For
+                    End If
+                Next i
+            Else
+                'Daten in der Liste aktualisieren
+                shapeDrawing1.count = sel.Count2
+                shapeDrawing1.updateGrid(dataGrid)
+            End If
+        Next shapeDrawing1
+        sel.Clear()
+
+        'Allegelöschten Daten aus der Liste entfernen
+        For Each shapeDrawing1 In removeList
+            shapeDrawings.Remove(shapeDrawing1)
+        Next shapeDrawing1
+    End Sub
 End Class
