@@ -53,34 +53,8 @@ Public Class Exporter
             outputPath = partNamePath + ".CATDrawing"
         End If
 
-        'Mit Speicherung den Pfad zurücksetzen
-        Try
-            My.Computer.FileSystem.RenameFile(CATIA.ActiveDocument.FullName, partName + "S4ve.CATPart")
-            CATIA.ActiveDocument.SaveAs(partNamePath + ".CATPart")
-        Catch ex As Exception
-            If TypeOf ex Is IOException Then
-                System.Console.WriteLine("Fehler beim Umbenennen der Datei:" + ex.Message)
-            End If
-        End Try
-
-        While Not File.Exists(partNamePath + ".CATPart")
-            Thread.Sleep(500)
-            timeElapsed = timeElapsed + 1
-            'Fehlermeldung, falls es Probleme beim Speichern gab
-            If timeElapsed > 6 Then
-                'Sicherungsdatei verwenden
-                My.Computer.FileSystem.RenameFile(partNamePath + "S4ve.CATPart", partName + ".CATPart")
-                MessageBox.Show(partName + " konnte nicht gespeichert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                'UI aktivieren
-                btnBack1.Enabled = True
-                Button1.Enabled = True
-                Exit Sub
-            End If
-        End While
-        'Sicherungsdatei kann gelöscht werden, wenn alles geklappt hat
-        File.Delete(partNamePath + "S4ve.CATPart")
         'Datei löschen, falls schon vorhanden
-        fileDxf = CATIA.ActiveDocument.FullName.Replace("CATPart", "dxf")
+        fileDxf = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) & Path.DirectorySeparatorChar & partName & ".dxf"
         If File.Exists(fileDxf) Then File.Delete(fileDxf)
 
         '##ProgressUpdate
@@ -94,14 +68,15 @@ Public Class Exporter
         Thread.Sleep(500)
         SendKeys.Send("{ENTER}")
         Thread.Sleep(500)
-        SendKeys.Send("{ENTER}")
+        'Verzeichnis auf Desktop wechseln und vorher Verzeichnis ändern
+        SendKeys.Send("{%}appdata{%}{ENTER}shell:Desktop{ENTER}{ENTER}")
 
         timeElapsed = 0
         While Not File.Exists(fileDxf)
             Thread.Sleep(500)
             timeElapsed = timeElapsed + 1
             'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-            If timeElapsed > 6 Then
+            If timeElapsed > 5 Then
                 MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 'UI aktivieren
                 btnBack1.Enabled = True
@@ -137,10 +112,11 @@ Public Class Exporter
 
         'Datei überschreiben und speichern
         If File.Exists(outputPath) Then File.Delete(outputPath)
-        CATIA.ActiveDocument.SaveAs(outputPath)
+            CATIA.ActiveDocument.SaveAs(outputPath)
+            CATIA.ActiveDocument.Close()
 
-        '##ProgressUpdate
-        progUpdate(partName + ".CATDrawing fertig")
+            '##ProgressUpdate
+            progUpdate(partName + ".CATDrawing fertig")
         'UI aktivieren
         btnBack1.Enabled = True
         Button1.Enabled = True
