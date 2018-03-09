@@ -4,14 +4,6 @@ Public Class Nesting
     Dim otherTrue As Boolean
 
     Private Sub Nesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        'dataGrid.Rows.Add("Grundplatte", "200x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Gelenk1", "200x22 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Gelenk2", "340x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Blech", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Blech1", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
-
         'Startwerte setzen
         lblError.Visible = False
         comboMaterial.SelectedIndex = 0
@@ -416,4 +408,33 @@ Public Class Nesting
             sheet.SetPaperWidth(txtBoxWidth.Text)
         End If
     End Sub
+    'Benutzereingaben prüfen
+    Private Sub txtBoxDistanceOutside_Leave(sender As Object, e As EventArgs) Handles txtBoxDistanceOutside.Leave
+        Dim value As Integer
+
+        'Auf den Standardwert zurücksetzen, wenn die Eingabe nicht passt
+        If Int32.TryParse(txtBoxDistanceOutside.Text, value) Then
+            If value > 99 And value < 0 Then txtBoxDistanceOutside.Text = 5
+        Else
+            txtBoxDistanceOutside.Text = 5
+        End If
+    End Sub
+    'Benutzereingaben prüfen
+    Private Sub txtBoxDistanceInside_TextChanged(sender As Object, e As EventArgs) Handles txtBoxDistanceInside.TextChanged
+        Dim value As Integer
+
+        'Auf den Standardwert zurücksetzen, wenn die Eingabe nicht passt
+        If Int32.TryParse(txtBoxDistanceInside.Text, value) Then
+            If value > 99 And value < 0 Then txtBoxDistanceInside.Text = 5
+        Else
+            txtBoxDistanceInside.Text = 5
+        End If
+    End Sub
+
+    Private Sub btnNesting_Click(sender As Object, e As EventArgs) Handles btnNesting.Click
+        System.Console.WriteLine("Outside: " & txtBoxDistanceOutside.Text)
+        System.Console.WriteLine("Inside: " & txtBoxDistanceInside.Text)
+    End Sub
+
+
 End Class
