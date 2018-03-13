@@ -112,11 +112,11 @@ Public Class Exporter
 
         'Datei überschreiben und speichern
         If File.Exists(outputPath) Then File.Delete(outputPath)
-            CATIA.ActiveDocument.SaveAs(outputPath)
-            CATIA.ActiveDocument.Close()
+        CATIA.ActiveDocument.SaveAs(outputPath)
+        CATIA.ActiveDocument.Close()
 
-            '##ProgressUpdate
-            progUpdate(partName + ".CATDrawing fertig")
+        '##ProgressUpdate
+        progUpdate(partName + ".CATDrawing fertig")
         'UI aktivieren
         btnBack1.Enabled = True
         Button1.Enabled = True

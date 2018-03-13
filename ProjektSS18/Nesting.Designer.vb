@@ -52,6 +52,8 @@ Partial Class Nesting
         Me.txtBoxDistanceOutside = New System.Windows.Forms.TextBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.txtBoxDistanceInside = New System.Windows.Forms.TextBox()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.chkBoxAuto = New System.Windows.Forms.CheckBox()
         CType(Me.dataGrid, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -149,9 +151,9 @@ Partial Class Nesting
         'btnNewSheet
         '
         Me.btnNewSheet.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.btnNewSheet.Location = New System.Drawing.Point(325, 306)
+        Me.btnNewSheet.Location = New System.Drawing.Point(307, 314)
         Me.btnNewSheet.Name = "btnNewSheet"
-        Me.btnNewSheet.Size = New System.Drawing.Size(202, 30)
+        Me.btnNewSheet.Size = New System.Drawing.Size(220, 30)
         Me.btnNewSheet.TabIndex = 1
         Me.btnNewSheet.Text = "Neues Blatt hinzufügen"
         Me.btnNewSheet.UseVisualStyleBackColor = True
@@ -162,16 +164,16 @@ Partial Class Nesting
         Me.comboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.comboMaterial.FormattingEnabled = True
         Me.comboMaterial.Items.AddRange(New Object() {"Fotokarton", "Holz", "Plexiglas", "Benutzerdefiniert"})
-        Me.comboMaterial.Location = New System.Drawing.Point(406, 224)
+        Me.comboMaterial.Location = New System.Drawing.Point(392, 224)
         Me.comboMaterial.Name = "comboMaterial"
-        Me.comboMaterial.Size = New System.Drawing.Size(121, 21)
+        Me.comboMaterial.Size = New System.Drawing.Size(135, 21)
         Me.comboMaterial.TabIndex = 2
         '
         'Label1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label1.Location = New System.Drawing.Point(322, 225)
+        Me.Label1.Location = New System.Drawing.Point(304, 223)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(62, 17)
         Me.Label1.TabIndex = 3
@@ -181,7 +183,7 @@ Partial Class Nesting
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label2.Location = New System.Drawing.Point(322, 253)
+        Me.Label2.Location = New System.Drawing.Point(304, 251)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(78, 17)
         Me.Label2.TabIndex = 3
@@ -193,17 +195,17 @@ Partial Class Nesting
         Me.comboSize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.comboSize.FormattingEnabled = True
         Me.comboSize.Items.AddRange(New Object() {"DIN A1", "DIN A3"})
-        Me.comboSize.Location = New System.Drawing.Point(406, 251)
+        Me.comboSize.Location = New System.Drawing.Point(392, 251)
         Me.comboSize.Name = "comboSize"
-        Me.comboSize.Size = New System.Drawing.Size(121, 21)
+        Me.comboSize.Size = New System.Drawing.Size(135, 21)
         Me.comboSize.TabIndex = 2
         '
         'btnRefresh
         '
-        Me.btnRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
+        Me.btnRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
         Me.btnRefresh.Location = New System.Drawing.Point(12, 219)
         Me.btnRefresh.Name = "btnRefresh"
-        Me.btnRefresh.Size = New System.Drawing.Size(122, 51)
+        Me.btnRefresh.Size = New System.Drawing.Size(127, 61)
         Me.btnRefresh.TabIndex = 0
         Me.btnRefresh.TabStop = False
         Me.btnRefresh.Text = "Liste aktualisieren"
@@ -211,10 +213,10 @@ Partial Class Nesting
         '
         'btnNesting
         '
-        Me.btnNesting.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.btnNesting.Location = New System.Drawing.Point(154, 219)
+        Me.btnNesting.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
+        Me.btnNesting.Location = New System.Drawing.Point(145, 219)
         Me.btnNesting.Name = "btnNesting"
-        Me.btnNesting.Size = New System.Drawing.Size(132, 52)
+        Me.btnNesting.Size = New System.Drawing.Size(141, 61)
         Me.btnNesting.TabIndex = 0
         Me.btnNesting.TabStop = False
         Me.btnNesting.Text = "Automatisch anordnen"
@@ -223,7 +225,7 @@ Partial Class Nesting
         'btnBack
         '
         Me.btnBack.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.btnBack.Location = New System.Drawing.Point(474, 7)
+        Me.btnBack.Location = New System.Drawing.Point(451, 12)
         Me.btnBack.Name = "btnBack"
         Me.btnBack.Size = New System.Drawing.Size(79, 26)
         Me.btnBack.TabIndex = 1
@@ -236,7 +238,7 @@ Partial Class Nesting
         Me.txtBoxHeight.CausesValidation = False
         Me.txtBoxHeight.Enabled = False
         Me.txtBoxHeight.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.txtBoxHeight.Location = New System.Drawing.Point(405, 280)
+        Me.txtBoxHeight.Location = New System.Drawing.Point(405, 284)
         Me.txtBoxHeight.MaxLength = 4
         Me.txtBoxHeight.Name = "txtBoxHeight"
         Me.txtBoxHeight.Size = New System.Drawing.Size(40, 21)
@@ -247,7 +249,7 @@ Partial Class Nesting
         '
         Me.txtBoxWidth.Enabled = False
         Me.txtBoxWidth.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.txtBoxWidth.Location = New System.Drawing.Point(460, 280)
+        Me.txtBoxWidth.Location = New System.Drawing.Point(460, 284)
         Me.txtBoxWidth.MaxLength = 4
         Me.txtBoxWidth.Name = "txtBoxWidth"
         Me.txtBoxWidth.Size = New System.Drawing.Size(40, 21)
@@ -269,7 +271,7 @@ Partial Class Nesting
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label4.Location = New System.Drawing.Point(500, 284)
+        Me.Label4.Location = New System.Drawing.Point(500, 288)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(30, 17)
         Me.Label4.TabIndex = 5
@@ -280,7 +282,7 @@ Partial Class Nesting
         '
         Me.lblError.AutoSize = True
         Me.lblError.ForeColor = System.Drawing.Color.Red
-        Me.lblError.Location = New System.Drawing.Point(304, 275)
+        Me.lblError.Location = New System.Drawing.Point(304, 279)
         Me.lblError.Name = "lblError"
         Me.lblError.Size = New System.Drawing.Size(99, 26)
         Me.lblError.TabIndex = 6
@@ -290,7 +292,7 @@ Partial Class Nesting
         '
         Me.Label5.AutoSize = True
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label5.Location = New System.Drawing.Point(9, 284)
+        Me.Label5.Location = New System.Drawing.Point(9, 290)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(155, 17)
         Me.Label5.TabIndex = 3
@@ -300,7 +302,7 @@ Partial Class Nesting
         '
         Me.Label6.AutoSize = True
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label6.Location = New System.Drawing.Point(9, 313)
+        Me.Label6.Location = New System.Drawing.Point(9, 322)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(168, 17)
         Me.Label6.TabIndex = 3
@@ -310,7 +312,7 @@ Partial Class Nesting
         '
         Me.Label7.AutoSize = True
         Me.Label7.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label7.Location = New System.Drawing.Point(200, 288)
+        Me.Label7.Location = New System.Drawing.Point(200, 294)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(30, 17)
         Me.Label7.TabIndex = 5
@@ -320,7 +322,7 @@ Partial Class Nesting
         'txtBoxDistanceOutside
         '
         Me.txtBoxDistanceOutside.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.txtBoxDistanceOutside.Location = New System.Drawing.Point(177, 284)
+        Me.txtBoxDistanceOutside.Location = New System.Drawing.Point(177, 290)
         Me.txtBoxDistanceOutside.MaxLength = 2
         Me.txtBoxDistanceOutside.Name = "txtBoxDistanceOutside"
         Me.txtBoxDistanceOutside.Size = New System.Drawing.Size(23, 21)
@@ -331,7 +333,7 @@ Partial Class Nesting
         '
         Me.Label8.AutoSize = True
         Me.Label8.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Label8.Location = New System.Drawing.Point(199, 314)
+        Me.Label8.Location = New System.Drawing.Point(199, 323)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(30, 17)
         Me.Label8.TabIndex = 5
@@ -341,24 +343,47 @@ Partial Class Nesting
         'txtBoxDistanceInside
         '
         Me.txtBoxDistanceInside.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.txtBoxDistanceInside.Location = New System.Drawing.Point(177, 310)
+        Me.txtBoxDistanceInside.Location = New System.Drawing.Point(177, 319)
         Me.txtBoxDistanceInside.MaxLength = 2
         Me.txtBoxDistanceInside.Name = "txtBoxDistanceInside"
         Me.txtBoxDistanceInside.Size = New System.Drawing.Size(23, 21)
         Me.txtBoxDistanceInside.TabIndex = 4
         Me.txtBoxDistanceInside.Text = "5"
         '
+        'Label9
+        '
+        Me.Label9.AutoSize = True
+        Me.Label9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
+        Me.Label9.Location = New System.Drawing.Point(324, 350)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(207, 15)
+        Me.Label9.TabIndex = 3
+        Me.Label9.Text = "Automatisch neue Blätter hinzufügen"
+        '
+        'chkBoxAuto
+        '
+        Me.chkBoxAuto.AutoSize = True
+        Me.chkBoxAuto.Checked = True
+        Me.chkBoxAuto.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkBoxAuto.Location = New System.Drawing.Point(307, 352)
+        Me.chkBoxAuto.Name = "chkBoxAuto"
+        Me.chkBoxAuto.Size = New System.Drawing.Size(15, 14)
+        Me.chkBoxAuto.TabIndex = 7
+        Me.chkBoxAuto.UseVisualStyleBackColor = True
+        '
         'Nesting
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(565, 346)
+        Me.ClientSize = New System.Drawing.Size(542, 376)
+        Me.Controls.Add(Me.chkBoxAuto)
         Me.Controls.Add(Me.txtBoxDistanceInside)
         Me.Controls.Add(Me.txtBoxDistanceOutside)
         Me.Controls.Add(Me.txtBoxWidth)
         Me.Controls.Add(Me.txtBoxHeight)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label6)
+        Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.comboSize)
@@ -413,4 +438,6 @@ Partial Class Nesting
     Friend WithEvents txtBoxDistanceOutside As TextBox
     Friend WithEvents Label8 As Label
     Friend WithEvents txtBoxDistanceInside As TextBox
+    Friend WithEvents Label9 As Label
+    Friend WithEvents chkBoxAuto As CheckBox
 End Class

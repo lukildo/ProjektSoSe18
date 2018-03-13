@@ -112,6 +112,7 @@
     <Compile Include="Nesting.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Rect.vb" />
     <Compile Include="ShapeDrawing.vb" />
   </ItemGroup>
   <ItemGroup>

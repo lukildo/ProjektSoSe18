@@ -236,6 +236,7 @@ Public Class Nesting
 
                 shapeDrawing1.status = "Geladen"
                 shapeDrawing1.count = 1
+                shapeDrawing1.placed = 0
                 sheets = CATIA.ActiveDocument.Sheets
                 sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.Name, "")
                 'Dokumentenindex bestimmen
@@ -432,8 +433,10 @@ Public Class Nesting
     End Sub
 
     Private Sub btnNesting_Click(sender As Object, e As EventArgs) Handles btnNesting.Click
-        System.Console.WriteLine("Outside: " & txtBoxDistanceOutside.Text)
-        System.Console.WriteLine("Inside: " & txtBoxDistanceInside.Text)
+        'Liste erst aktualisieren
+        Call btnRefresh_Click(Nothing, Nothing)
+
+        autoPosition(chkBoxAuto.Checked)
     End Sub
     'Aktualisieren
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
@@ -455,7 +458,7 @@ Public Class Nesting
 
         For Each shapeDrawing1 In shapeDrawings
             sel.Clear()
-            sel.Search("Name=" & shapeDrawing1.Name & "+Name=" & shapeDrawing1.Name & "[*" & ",all")
+            sel.Search("Name=" & shapeDrawing1.name & "+Name=" & shapeDrawing1.name & "[*,all")
             'Gespeicherte Anzahl stimmt mit der aktuellen Anzahl überein
             If shapeDrawing1.count = sel.Count2 Then Continue For
 
@@ -476,7 +479,7 @@ Public Class Nesting
         Next shapeDrawing1
         sel.Clear()
 
-        'Allegelöschten Daten aus der Liste entfernen
+        'Alle gelöschten Daten aus der Liste entfernen
         For Each shapeDrawing1 In removeList
             shapeDrawings.Remove(shapeDrawing1)
         Next shapeDrawing1
