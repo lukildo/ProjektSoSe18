@@ -66,7 +66,6 @@
 
     'Prüfen, ob das Rechteck in dieses passt
     Public Function fits(rectInsert As Rect) As Boolean
-        System.Console.WriteLine("Passt rein")
         If m_sizeX >= rectInsert.sizeX And m_sizeY >= rectInsert.sizeY Then Return True
         Return False
     End Function
@@ -76,9 +75,7 @@
         If rectIntersect.originX >= m_originX + m_sizeX Or rectIntersect.originX + rectIntersect.sizeX <= m_originX Or
         rectIntersect.originY >= m_originY + m_sizeY Or rectIntersect.originY + rectIntersect.sizeY <= m_originY Then
             Return False
-            System.Console.WriteLine("Schneidet sich nicht")
         End If
-        System.Console.WriteLine("Schneidet sich")
         Return True
     End Function
 

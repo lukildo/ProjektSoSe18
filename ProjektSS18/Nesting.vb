@@ -245,11 +245,13 @@ Public Class Nesting
                         Exit For
                     End If
                 Next i
+                'Main View aktivieren, um Koordinatenprobleme zu vermeiden
+                sheets.ActiveSheet.Views.Item(1).Activate()
 
                 'Variant Array
                 Dim arr(4)
                 'Größe der BoundingBox
-                sheets.ActiveSheet.Views.ActiveView.Size(arr)
+                sheets.ActiveSheet.Views.Item(3).Size(arr)
                 'Xmax - Xmin
                 shapeDrawing1.sizeX = arr(1) - arr(0)
                 'Ymax-Ymin
@@ -257,11 +259,11 @@ Public Class Nesting
                 System.Console.WriteLine("SizeX " & shapeDrawing1.sizeX)
                 System.Console.WriteLine("SizeY " & shapeDrawing1.sizeY)
                 'Ursprungspunkte speichern
-                shapeDrawing1.originX = sheets.ActiveSheet.Views.ActiveView.x - arr(0)
-                shapeDrawing1.originY = sheets.ActiveSheet.Views.ActiveView.y - arr(2)
+                shapeDrawing1.originX = sheets.ActiveSheet.Views.Item(3).x - arr(0)
+                shapeDrawing1.originY = sheets.ActiveSheet.Views.Item(3).y - arr(2)
                 'DrawingView kopieren
                 sel = CATIA.ActiveDocument.Selection
-                sel.Add(sheets.ActiveSheet.Views.ActiveView)
+                sel.Add(sheets.ActiveSheet.Views.Item(3))
                 sel.Copy()
                 'Dokument wechseln und einfügen
                 CATIA.Documents.Item(mainIndex).Activate()

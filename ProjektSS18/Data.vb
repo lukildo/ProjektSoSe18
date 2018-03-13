@@ -56,7 +56,6 @@ Module Data
                         'Bestes Feld auswählen, minimales Y und minimales X
                         If rect1.originY < placeY Or (rect1.originY.Equals(placeY) And rect1.originX < placeX) Then
                             System.Console.WriteLine("bessere Möglichkeit")
-
                             placeX = rect1.originX
                             placeY = rect1.originY
                             shapeRect.originX = rect1.originX
@@ -182,35 +181,6 @@ Module Data
                 End If
             End If
         Next i
-
-
-        ''Sonderfälle zuerst betrachten
-        'If usedRect.sizeX = shapeDrawing1.sizeX And usedRect.sizeY = shapeDrawing1.sizeY Then
-        '    freeRects.Remove(usedRect)
-        '    System.Console.WriteLine("Sonderfall 1")
-        'ElseIf usedRect.sizeY = shapeDrawing1.sizeY Then
-        '    freeRects.Remove(usedRect)
-        '    Dim newRect As New Rect(usedRect.sizeX - shapeDrawing1.sizeX, usedRect.sizeY, usedRect.originX + shapeDrawing1.sizeX, usedRect.originY)
-        '    freeRects.Add(newRect)
-
-
-        '    System.Console.WriteLine("Sonderfall 2")
-        'ElseIf usedRect.sizeX = shapeDrawing1.sizeX Then
-        '    freeRects.Remove(usedRect)
-        '    Dim newRect As New Rect(usedRect.sizeX, usedRect.sizeY - shapeDrawing1.sizeY, usedRect.originX, usedRect.originY + shapeDrawing1.sizeY)
-        '    freeRects.Add(newRect)
-
-        '    For Each freeRect In freeRects
-        '        System.Console.WriteLine(freeRect.originX)
-        '        System.Console.WriteLine(freeRect.originY)
-        '        System.Console.WriteLine(freeRect.sizeX)
-        '        System.Console.WriteLine(freeRect.sizeY)
-        '        System.Console.WriteLine("----------")
-        '    Next freeRect
-        '    System.Console.WriteLine("Sonderfall 3")
-        'End If
-
-
     End Sub
 
 End Module
