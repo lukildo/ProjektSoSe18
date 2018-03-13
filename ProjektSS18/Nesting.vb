@@ -236,7 +236,6 @@ Public Class Nesting
 
                 shapeDrawing1.status = "Geladen"
                 shapeDrawing1.count = 1
-                shapeDrawing1.placed = 0
                 sheets = CATIA.ActiveDocument.Sheets
                 sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.Name, "")
                 'Dokumentenindex bestimmen
@@ -255,6 +254,8 @@ Public Class Nesting
                 shapeDrawing1.sizeX = arr(1) - arr(0)
                 'Ymax-Ymin
                 shapeDrawing1.sizeY = arr(3) - arr(2)
+                System.Console.WriteLine("SizeX " & shapeDrawing1.sizeX)
+                System.Console.WriteLine("SizeY " & shapeDrawing1.sizeY)
                 'Ursprungspunkte speichern
                 shapeDrawing1.originX = sheets.ActiveSheet.Views.ActiveView.x - arr(0)
                 shapeDrawing1.originY = sheets.ActiveSheet.Views.ActiveView.y - arr(2)

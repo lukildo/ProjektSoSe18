@@ -4,7 +4,6 @@ Module Data
     'Alle geladenen Daten in einer globalen Variable speichern
     Public shapeDrawings As New List(Of ShapeDrawing)
     'Listen für die automatische Positionierung
-    Private usedRects As New List(Of Rect)
     Private freeRects As New List(Of Rect)
 
     'Automatische Positionierung als Funktion ausgelagert
@@ -35,32 +34,33 @@ Module Data
 
         'Variablen zurücksetzen
         resetPlaced()
-        usedRects.Clear()
         freeRects.Clear()
         'Gesamtes Blatt ist die erste freie Möglichkeit
         freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth, sheets.ActiveSheet.GetPaperHeight, 0, 0))
-
         'Gesamte geladene Daten durchgehen
         For Each shapeDrawing1 In shapeDrawings
             'Wurde bereits platziert
             If shapeDrawing1.placed = shapeDrawing1.count Then Continue For
             Dim shapeRect As New Rect(shapeDrawing1.sizeX, shapeDrawing1.sizeY)
 
-            Dim placeX As Double = Double.MaxValue
-            Dim placeY As Double = Double.MaxValue
-
             'Gesamte Anzahl durchgehen
             Do
-                Dim usedRect As Rect
+                Dim placeX As Double = Double.MaxValue
+                Dim placeY As Double = Double.MaxValue
                 'Alle Platzierungsmöglichkeiten durchgehen
                 For Each rect1 In freeRects
                     'Prüfen, ob die drwView in das Feld passt
                     If rect1.fits(shapeRect) Then
+                        System.Console.WriteLine(rect1.originY)
+                        System.Console.WriteLine(rect1.originX)
                         'Bestes Feld auswählen, minimales Y und minimales X
-                        If rect1.originY < placeY Or (rect1.originY = placeY And rect1.originX < placeX) Then
+                        If rect1.originY < placeY Or (rect1.originY.Equals(placeY) And rect1.originX < placeX) Then
+                            System.Console.WriteLine("bessere Möglichkeit")
+
                             placeX = rect1.originX
                             placeY = rect1.originY
-                            usedRect = rect1
+                            shapeRect.originX = rect1.originX
+                            shapeRect.originY = rect1.originY
                         End If
                     End If
                 Next rect1
@@ -70,7 +70,7 @@ Module Data
 
                     shapeDrawing1.placed = shapeDrawing1.placed + 1
                     placeShape(shapeDrawing1, placeX, placeY)
-                    updateFreeRects(usedRect, shapeDrawing1)
+                    updateFreeRects(shapeRect)
                 Else
                     Exit Do
                 End If
@@ -106,7 +106,7 @@ Module Data
         sel = Catia.ActiveDocument.Selection
         sel.Clear()
         'Richtige DrawingView finden
-        If shapeDrawing1.placed = 0 Then
+        If shapeDrawing1.placed = 1 Then
             sel.Search("Name=" & shapeDrawing1.name & ",all")
         Else
             sel.Search("Name=" & shapeDrawing1.name & "[" & shapeDrawing1.placed & "],all")
@@ -132,21 +132,83 @@ Module Data
         Next
     End Sub
 
-    Public Sub updateFreeRects(ByVal usedRect As Rect, shapeDrawing1 As ShapeDrawing)
+    Public Sub updateFreeRects(ByVal usedRect As Rect)
+
+        Dim i As Integer
+        Dim freeRectCount As Integer = freeRects.Count
+        System.Console.WriteLine(freeRectCount)
+
+        For i = 0 To freeRectCount - 1
+            If freeRects.Item(i).intersects(usedRect) Then
+                Dim freeRect As Rect = freeRects.Item(i)
+                Dim newFreeRect As Rect
+                'Neues unten anfügen
+                If usedRect.originY > freeRect.originY Then
+                    System.Console.WriteLine("Unten anfügen")
+                    newFreeRect = New Rect(freeRect)
+                    newFreeRect.sizeY = usedRect.originY - freeRect.originY
+                    freeRects.Add(newFreeRect)
+                End If
+                'Neues oben anfügen
+                If usedRect.originY + usedRect.sizeY < freeRect.originY + freeRect.sizeY Then
+                    System.Console.WriteLine("Oben anfügen")
+                    newFreeRect = New Rect(freeRect)
+                    newFreeRect.originY = usedRect.originY + usedRect.sizeY
+                    newFreeRect.sizeY = freeRect.originY + freeRect.sizeY - usedRect.originY - usedRect.sizeY
+                    freeRects.Add(newFreeRect)
+                End If
+
+                'Neues links anfügen
+                If usedRect.originX > freeRect.originX Then
+                    System.Console.WriteLine("Links anfügen")
+                    newFreeRect = New Rect(freeRect)
+                    newFreeRect.sizeX = usedRect.originX - freeRect.originX
+                    freeRects.Add(newFreeRect)
+                End If
+
+                'Neues rechts anfügen
+                If usedRect.originX + usedRect.sizeX < freeRect.originX + freeRect.sizeX Then
+                    System.Console.WriteLine("Rechts anfügen")
+                    newFreeRect = New Rect(freeRect)
+                    newFreeRect.originX = usedRect.originX + usedRect.sizeX
+                    newFreeRect.sizeX = freeRect.originX + freeRect.sizeX - usedRect.originX - usedRect.sizeX
+                    freeRects.Add(newFreeRect)
+                End If
+
+                If newFreeRect IsNot Nothing Then
+                    freeRects.RemoveAt(i)
+                    i = i - 1
+                    freeRectCount = freeRectCount - 1
+                End If
+            End If
+        Next i
 
 
-        'Sonderfälle zuerst betrachten
-        If usedRect.sizeX = shapeDrawing1.sizeX And usedRect.sizeY = shapeDrawing1.sizeY Then
-            freeRects.Remove(usedRect)
-        ElseIf usedRect.sizeY = shapeDrawing1.sizeY Then
-            freeRects.Remove(usedRect)
-            Dim newRect As New Rect(usedRect.sizeX - shapeDrawing1.sizeX, usedRect.sizeY, usedRect.originX + shapeDrawing1.sizeX, usedRect.originY)
-            freeRects.Add(newRect)
-        ElseIf usedRect.sizeY = shapeDrawing1.sizeY Then
-            freeRects.Remove(usedRect)
-            Dim newRect As New Rect(usedRect.sizeX, usedRect.sizeY - shapeDrawing1.sizeY, usedRect.originX, usedRect.originY + shapeDrawing1.sizeY)
-            freeRects.Add(newRect)
-        End If
+        ''Sonderfälle zuerst betrachten
+        'If usedRect.sizeX = shapeDrawing1.sizeX And usedRect.sizeY = shapeDrawing1.sizeY Then
+        '    freeRects.Remove(usedRect)
+        '    System.Console.WriteLine("Sonderfall 1")
+        'ElseIf usedRect.sizeY = shapeDrawing1.sizeY Then
+        '    freeRects.Remove(usedRect)
+        '    Dim newRect As New Rect(usedRect.sizeX - shapeDrawing1.sizeX, usedRect.sizeY, usedRect.originX + shapeDrawing1.sizeX, usedRect.originY)
+        '    freeRects.Add(newRect)
+
+
+        '    System.Console.WriteLine("Sonderfall 2")
+        'ElseIf usedRect.sizeX = shapeDrawing1.sizeX Then
+        '    freeRects.Remove(usedRect)
+        '    Dim newRect As New Rect(usedRect.sizeX, usedRect.sizeY - shapeDrawing1.sizeY, usedRect.originX, usedRect.originY + shapeDrawing1.sizeY)
+        '    freeRects.Add(newRect)
+
+        '    For Each freeRect In freeRects
+        '        System.Console.WriteLine(freeRect.originX)
+        '        System.Console.WriteLine(freeRect.originY)
+        '        System.Console.WriteLine(freeRect.sizeX)
+        '        System.Console.WriteLine(freeRect.sizeY)
+        '        System.Console.WriteLine("----------")
+        '    Next freeRect
+        '    System.Console.WriteLine("Sonderfall 3")
+        'End If
 
 
     End Sub

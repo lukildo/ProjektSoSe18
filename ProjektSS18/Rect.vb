@@ -20,6 +20,14 @@
         m_originY = originY
     End Sub
 
+    'Kopie Konstruktor
+    Public Sub New(ByVal copyRect As Rect)
+        m_sizeX = copyRect.sizeX
+        m_sizeY = copyRect.sizeY
+        m_originX = copyRect.originX
+        m_originY = copyRect.originY
+    End Sub
+
     Public Property sizeX As Double
         Get
             Return m_sizeX
@@ -56,10 +64,22 @@
         End Set
     End Property
 
-    'Ein Rechteck passt in dieses Rechteck
+    'Prüfen, ob das Rechteck in dieses passt
     Public Function fits(rectInsert As Rect) As Boolean
+        System.Console.WriteLine("Passt rein")
         If m_sizeX >= rectInsert.sizeX And m_sizeY >= rectInsert.sizeY Then Return True
         Return False
+    End Function
+
+    'Prüfen, ob sich zwei Rechtecke schneiden
+    Public Function intersects(rectIntersect As Rect) As Boolean
+        If rectIntersect.originX >= m_originX + m_sizeX Or rectIntersect.originX + rectIntersect.sizeX <= m_originX Or
+        rectIntersect.originY >= m_originY + m_sizeY Or rectIntersect.originY + rectIntersect.sizeY <= m_originY Then
+            Return False
+            System.Console.WriteLine("Schneidet sich nicht")
+        End If
+        System.Console.WriteLine("Schneidet sich")
+        Return True
     End Function
 
 End Class
