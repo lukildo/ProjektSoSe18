@@ -3,12 +3,17 @@
 Module Data
     'Alle geladenen Daten in einer globalen Variable speichern
     Public shapeDrawings As New List(Of ShapeDrawing)
+    'Globaler Zugriff auf das DataGrid
+    Public dataGrid As DataGridView
     'Listen für die automatische Positionierung
     Private freeRects As New List(Of Rect)
 
     'Automatische Positionierung als Funktion ausgelagert
     Public Sub autoPosition(ByVal newSheets As Boolean, ByVal distanceInside As Integer, ByVal distanceOutSide As Integer)
         Dim Catia As INFITF.Application
+        Dim alreadyPlaced As Integer
+        Dim failedPlacements As Integer
+        Dim currentSheet As Integer
 
         'Catia Verbindung aufbauen
         Try
@@ -29,69 +34,100 @@ Module Data
             Exit Sub
         End Try
 
-        'Auf das erste Blatt wechseln
-        sheets.Item(1).Activate()
-
         'Variablen zurücksetzen
         resetPlaced()
         freeRects.Clear()
+        alreadyPlaced = 0
+        failedPlacements = 0
+        currentSheet = 1
+
+        'Auf das erste Blatt wechseln
+        sheets.Item(currentSheet).Activate()
+
         'Gesamtes Blatt ist die erste freie Möglichkeit
         freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide, sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide, distanceOutSide, distanceOutSide))
         'Gesamte geladene Daten durchgehen
-        For Each shapeDrawing1 In shapeDrawings
-            'Wurde bereits platziert
-            If shapeDrawing1.placed = shapeDrawing1.count Then Continue For
+        Do
+            For Each shapeDrawing1 In shapeDrawings
+                'Wurde bereits platziert
+                If shapeDrawing1.placed = shapeDrawing1.count Then Continue For
 
-            Dim shapeRect As New Rect(shapeDrawing1.sizeX + distanceInside, shapeDrawing1.sizeY + distanceInside)
-            'Gesamte Anzahl durchgehen
-            Do
-                Dim bestY As Double = Double.MaxValue
-                Dim topY As Double
-                Dim rotate As Boolean
-                'Alle Platzierungsmöglichkeiten durchgehen
-                For Each rect1 In freeRects
-                    'Prüfen, ob die drwView in das Feld passt
-                    If rect1.fits(shapeRect) Then
-                        'Bestes Feld auswählen, minimales Y und minimales X
-                        topY = rect1.originY + shapeDrawing1.sizeY
-                        If topY < bestY Or (topY.Equals(bestY) And rect1.originX < shapeRect.originX) Then
-                            bestY = topY
-                            shapeRect.originX = rect1.originX
-                            shapeRect.originY = rect1.originY
-                            rotate = False
-                        End If
-                    End If
-                    'Mit Drehung probieren
-                    If rect1.fits(shapeRect.rotated()) Then
-                        topY = rect1.originY + shapeDrawing1.sizeX
-                        'Bestes Feld auswählen, minimales Y und minimales X
-                        If topY < bestY Or (topY.Equals(bestY) And rect1.originX < shapeRect.originX) Then
-                            bestY = topY
-                            shapeRect.originX = rect1.originX
-                            shapeRect.originY = rect1.originY
-                            rotate = True
-                        End If
-                    End If
-                Next rect1
-
-                If bestY < Double.MaxValue Then
-                    System.Console.WriteLine("Position konnte gefunden werden")
-
-                    shapeDrawing1.placed = shapeDrawing1.placed + 1
-                    placeShape(shapeDrawing1, shapeRect.originX, shapeRect.originY, 1, rotate)
-
-                    If rotate Then
-                        updateFreeRects(shapeRect.rotated())
+                'Komplette Liste passt nicht
+                If failedPlacements = shapeDrawings.Count Then
+                    If sheets.Count > currentSheet Then
+                        currentSheet = currentSheet + 1
+                        sheets.Item(currentSheet).Activate()
+                        freeRects.Clear()
+                        freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide, sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide, distanceOutSide, distanceOutSide))
+                        failedPlacements = 0
+                    ElseIf newSheets Then
+                        Call Nesting.btnNewSheet_Click(Nothing, Nothing)
+                        currentSheet = currentSheet + 1
+                        sheets.Item(currentSheet).Activate()
+                        freeRects.Clear()
+                        freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide, sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide, distanceOutSide, distanceOutSide))
+                        failedPlacements = 0
                     Else
-                        updateFreeRects(shapeRect)
+                        MessageBox.Show("Es konnten nicht alle Zeichnungen auf den vorhandenen Blättern platziert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Exit Sub
                     End If
-
-                Else
-                    Exit Do
                 End If
-            Loop Until shapeDrawing1.placed = shapeDrawing1.count
 
-        Next shapeDrawing1
+                Dim shapeRect As New Rect(shapeDrawing1.sizeX + distanceInside, shapeDrawing1.sizeY + distanceInside)
+                'Gesamte Anzahl durchgehen
+                Do
+                    Dim bestY As Double = Double.MaxValue
+                    Dim topY As Double
+                    Dim rotate As Boolean
+                    'Alle Platzierungsmöglichkeiten durchgehen
+                    For Each rect1 In freeRects
+                        'Prüfen, ob die drwView in das Feld passt
+                        If rect1.fits(shapeRect) Then
+                            'Bestes Feld auswählen, minimales Y und minimales X
+                            topY = rect1.originY + shapeDrawing1.sizeY
+                            If topY < bestY Or (topY.Equals(bestY) And rect1.originX < shapeRect.originX) Then
+                                bestY = topY
+                                shapeRect.originX = rect1.originX
+                                shapeRect.originY = rect1.originY
+                                rotate = False
+                            End If
+                        End If
+                        'Mit Drehung probieren
+                        If rect1.fits(shapeRect.rotated()) Then
+                            topY = rect1.originY + shapeDrawing1.sizeX
+                            'Bestes Feld auswählen, minimales Y und minimales X
+                            If topY < bestY Or (topY.Equals(bestY) And rect1.originX < shapeRect.originX) Then
+                                bestY = topY
+                                shapeRect.originX = rect1.originX
+                                shapeRect.originY = rect1.originY
+                                rotate = True
+                            End If
+                        End If
+                    Next rect1
+
+                    'Wenn etwas gefunden wurde, dann an die Koordinaten platzieren
+                    If bestY < Double.MaxValue Then
+                        shapeDrawing1.placed = shapeDrawing1.placed + 1
+                        If shapeDrawing1.placed = shapeDrawing1.count Then alreadyPlaced = alreadyPlaced + 1
+
+                        placeShape(shapeDrawing1, shapeRect.originX, shapeRect.originY, currentSheet, rotate)
+                        'Statusupdate
+                        shapeDrawing1.status = shapeDrawing1.placed & "/" & shapeDrawing1.count & " platziert"
+                        shapeDrawing1.updateGrid(dataGrid)
+                        If rotate Then
+                            updateFreeRects(shapeRect.rotated())
+                        Else
+                            updateFreeRects(shapeRect)
+                        End If
+                        failedPlacements = 0
+                    Else
+                        failedPlacements = failedPlacements + 1
+                        System.Console.WriteLine(shapeDrawing1.name & " konnte nicht platziert werden")
+                        Exit Do
+                    End If
+                Loop Until shapeDrawing1.placed = shapeDrawing1.count
+            Next shapeDrawing1
+        Loop Until shapeDrawings.Count <= alreadyPlaced
     End Sub
 
     'Shape an gewünschte Position setzen

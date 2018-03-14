@@ -26,7 +26,7 @@ Partial Class Nesting
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Nesting))
         Me.btnSelect = New System.Windows.Forms.Button()
-        Me.dataGrid = New System.Windows.Forms.DataGridView()
+        Me.dataGridView = New System.Windows.Forms.DataGridView()
         Me.Column1 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.Column2 = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.Column4 = New System.Windows.Forms.DataGridViewTextBoxColumn()
@@ -54,7 +54,7 @@ Partial Class Nesting
         Me.txtBoxDistanceInside = New System.Windows.Forms.TextBox()
         Me.Label9 = New System.Windows.Forms.Label()
         Me.chkBoxAuto = New System.Windows.Forms.CheckBox()
-        CType(Me.dataGrid, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.dataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'btnSelect
@@ -67,13 +67,13 @@ Partial Class Nesting
         Me.btnSelect.Text = "Zeichnungen auswählen und laden"
         Me.btnSelect.UseVisualStyleBackColor = True
         '
-        'dataGrid
+        'dataGridView
         '
-        Me.dataGrid.AllowUserToAddRows = False
-        Me.dataGrid.AllowUserToDeleteRows = False
-        Me.dataGrid.AllowUserToOrderColumns = True
-        Me.dataGrid.AllowUserToResizeRows = False
-        Me.dataGrid.BackgroundColor = System.Drawing.SystemColors.ButtonFace
+        Me.dataGridView.AllowUserToAddRows = False
+        Me.dataGridView.AllowUserToDeleteRows = False
+        Me.dataGridView.AllowUserToOrderColumns = True
+        Me.dataGridView.AllowUserToResizeRows = False
+        Me.dataGridView.BackgroundColor = System.Drawing.SystemColors.ButtonFace
         DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.InactiveCaption
         DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
@@ -81,19 +81,19 @@ Partial Class Nesting
         DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
         DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
         DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.dataGrid.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
-        Me.dataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dataGrid.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.Column1, Me.Column2, Me.Column4, Me.Column3, Me.btnColumn1, Me.btnColumn2})
-        Me.dataGrid.Location = New System.Drawing.Point(12, 55)
-        Me.dataGrid.Name = "dataGrid"
-        Me.dataGrid.ReadOnly = True
-        Me.dataGrid.RowHeadersVisible = False
-        Me.dataGrid.ShowCellErrors = False
-        Me.dataGrid.ShowCellToolTips = False
-        Me.dataGrid.ShowEditingIcon = False
-        Me.dataGrid.ShowRowErrors = False
-        Me.dataGrid.Size = New System.Drawing.Size(515, 159)
-        Me.dataGrid.TabIndex = 1
+        Me.dataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        Me.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.dataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.Column1, Me.Column2, Me.Column4, Me.Column3, Me.btnColumn1, Me.btnColumn2})
+        Me.dataGridView.Location = New System.Drawing.Point(12, 55)
+        Me.dataGridView.Name = "dataGridView"
+        Me.dataGridView.ReadOnly = True
+        Me.dataGridView.RowHeadersVisible = False
+        Me.dataGridView.ShowCellErrors = False
+        Me.dataGridView.ShowCellToolTips = False
+        Me.dataGridView.ShowEditingIcon = False
+        Me.dataGridView.ShowRowErrors = False
+        Me.dataGridView.Size = New System.Drawing.Size(515, 159)
+        Me.dataGridView.TabIndex = 1
         '
         'Column1
         '
@@ -388,7 +388,7 @@ Partial Class Nesting
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.comboSize)
         Me.Controls.Add(Me.comboMaterial)
-        Me.Controls.Add(Me.dataGrid)
+        Me.Controls.Add(Me.dataGridView)
         Me.Controls.Add(Me.btnNesting)
         Me.Controls.Add(Me.btnRefresh)
         Me.Controls.Add(Me.btnNewSheet)
@@ -405,14 +405,14 @@ Partial Class Nesting
         Me.Name = "Nesting"
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
         Me.Text = "ShapeFormat"
-        CType(Me.dataGrid, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.dataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents btnSelect As Button
-    Friend WithEvents dataGrid As DataGridView
+    Friend WithEvents dataGridView As DataGridView
     Friend WithEvents btnNewSheet As Button
     Friend WithEvents comboMaterial As ComboBox
     Friend WithEvents Label1 As Label
