@@ -66,8 +66,14 @@
 
     'Prüfen, ob das Rechteck in dieses passt
     Public Function fits(rectInsert As Rect) As Boolean
-        If m_sizeX >= rectInsert.sizeX And m_sizeY >= rectInsert.sizeY Then Return True
-        Return False
+        Return m_sizeX >= rectInsert.sizeX And m_sizeY >= rectInsert.sizeY
+    End Function
+
+    'Prüfen, ob das Rechteck innerhalb des anderen liegt
+    Public Function contains(rectInsert As Rect) As Boolean
+        Return rectInsert.originX >= m_originX And rectInsert.originY >= m_originY _
+            And rectInsert.originX + rectInsert.sizeX <= m_originX + m_sizeX _
+            And rectInsert.originY + rectInsert.sizeY <= m_originY + m_sizeY
     End Function
 
     'Prüfen, ob sich zwei Rechtecke schneiden
@@ -77,6 +83,12 @@
             Return False
         End If
         Return True
+    End Function
+
+    Public Function rotated() As Rect
+        'Werte tauschen für Drehung um 90°
+
+        Return New Rect(m_sizeY, m_sizeX, m_originX, m_originY)
     End Function
 
 End Class

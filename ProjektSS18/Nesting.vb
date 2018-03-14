@@ -341,7 +341,8 @@ Public Class Nesting
 
                 'Eingefügte DrawingView verschieben
                 Dim sheets As DrawingSheets = CATIA.ActiveDocument.Sheets
-                Dim drwView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
+                Dim drwView As DrawingView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
+                drwView.Angle = 0
                 drwView.x = shapeDrawing1.originX
                 drwView.y = shapeDrawing1.originY
 
@@ -438,8 +439,8 @@ Public Class Nesting
     Private Sub btnNesting_Click(sender As Object, e As EventArgs) Handles btnNesting.Click
         'Liste erst aktualisieren
         Call btnRefresh_Click(Nothing, Nothing)
-
-        autoPosition(chkBoxAuto.Checked)
+        'UI Werte weitergeben
+        autoPosition(chkBoxAuto.Checked, txtBoxDistanceInside.Text, txtBoxDistanceOutside.Text)
     End Sub
     'Aktualisieren
     Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click

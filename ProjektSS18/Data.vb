@@ -7,7 +7,7 @@ Module Data
     Private freeRects As New List(Of Rect)
 
     'Automatische Positionierung als Funktion ausgelagert
-    Public Sub autoPosition(ByVal newSheets As Boolean)
+    Public Sub autoPosition(ByVal newSheets As Boolean, ByVal distanceInside As Integer, ByVal distanceOutSide As Integer)
         Dim Catia As INFITF.Application
 
         'Catia Verbindung aufbauen
@@ -36,40 +36,56 @@ Module Data
         resetPlaced()
         freeRects.Clear()
         'Gesamtes Blatt ist die erste freie Möglichkeit
-        freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth, sheets.ActiveSheet.GetPaperHeight, 0, 0))
+        freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide, sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide, distanceOutSide, distanceOutSide))
         'Gesamte geladene Daten durchgehen
         For Each shapeDrawing1 In shapeDrawings
             'Wurde bereits platziert
             If shapeDrawing1.placed = shapeDrawing1.count Then Continue For
-            Dim shapeRect As New Rect(shapeDrawing1.sizeX, shapeDrawing1.sizeY)
 
+            Dim shapeRect As New Rect(shapeDrawing1.sizeX + distanceInside, shapeDrawing1.sizeY + distanceInside)
             'Gesamte Anzahl durchgehen
             Do
-                Dim placeX As Double = Double.MaxValue
-                Dim placeY As Double = Double.MaxValue
+                Dim bestY As Double = Double.MaxValue
+                Dim topY As Double
+                Dim rotate As Boolean
                 'Alle Platzierungsmöglichkeiten durchgehen
                 For Each rect1 In freeRects
                     'Prüfen, ob die drwView in das Feld passt
                     If rect1.fits(shapeRect) Then
-                        System.Console.WriteLine(rect1.originY)
-                        System.Console.WriteLine(rect1.originX)
                         'Bestes Feld auswählen, minimales Y und minimales X
-                        If rect1.originY < placeY Or (rect1.originY.Equals(placeY) And rect1.originX < placeX) Then
-                            System.Console.WriteLine("bessere Möglichkeit")
-                            placeX = rect1.originX
-                            placeY = rect1.originY
+                        topY = rect1.originY + shapeDrawing1.sizeY
+                        If topY < bestY Or (topY.Equals(bestY) And rect1.originX < shapeRect.originX) Then
+                            bestY = topY
                             shapeRect.originX = rect1.originX
                             shapeRect.originY = rect1.originY
+                            rotate = False
+                        End If
+                    End If
+                    'Mit Drehung probieren
+                    If rect1.fits(shapeRect.rotated()) Then
+                        topY = rect1.originY + shapeDrawing1.sizeX
+                        'Bestes Feld auswählen, minimales Y und minimales X
+                        If topY < bestY Or (topY.Equals(bestY) And rect1.originX < shapeRect.originX) Then
+                            bestY = topY
+                            shapeRect.originX = rect1.originX
+                            shapeRect.originY = rect1.originY
+                            rotate = True
                         End If
                     End If
                 Next rect1
 
-                If placeX < Double.MaxValue And placeY < Double.MaxValue Then
+                If bestY < Double.MaxValue Then
                     System.Console.WriteLine("Position konnte gefunden werden")
 
                     shapeDrawing1.placed = shapeDrawing1.placed + 1
-                    placeShape(shapeDrawing1, placeX, placeY)
-                    updateFreeRects(shapeRect)
+                    placeShape(shapeDrawing1, shapeRect.originX, shapeRect.originY, 1, rotate)
+
+                    If rotate Then
+                        updateFreeRects(shapeRect.rotated())
+                    Else
+                        updateFreeRects(shapeRect)
+                    End If
+
                 Else
                     Exit Do
                 End If
@@ -79,9 +95,10 @@ Module Data
     End Sub
 
     'Shape an gewünschte Position setzen
-    Public Sub placeShape(ByVal shapeDrawing1 As ShapeDrawing, ByVal x As Double, ByVal y As Double)
+    Public Sub placeShape(ByVal shapeDrawing1 As ShapeDrawing, ByVal x As Double, ByVal y As Double, ByVal sheetNumber As Integer, ByVal rotate As Boolean)
         Dim Catia As INFITF.Application
         Dim sel As Selection
+        Dim i As Integer
 
         'Catia Verbindung aufbauen
         Try
@@ -119,9 +136,52 @@ Module Data
             Exit Sub
         End Try
 
-        'An die gewünschte Stelle platzieren
-        drwView.x = shapeDrawing1.originX + x
-        drwView.y = shapeDrawing1.originY + y
+        Dim parentSheet As DrawingSheet = drwView.Parent
+        'Blattnummer herausfinden
+        For i = 1 To sheets.Count
+            If sheets.Item(i).Name.Equals(parentSheet.Name) Then Exit For
+        Next i
+
+        'Drehung ausführen
+        If rotate Then
+            drwView.Angle = -1.5708
+            If sheetNumber.Equals(i) Then
+                'An die gewünschte Stelle platzieren
+                drwView.x = shapeDrawing1.originY + x
+                drwView.y = shapeDrawing1.originX - shapeDrawing1.sizeX + y
+            Else
+                'View auf ein anderes Blatt verschieben
+                sel.Clear()
+                sel.Add(drwView)
+                sel.Cut()
+                sel.Add(sheets.Item(sheetNumber))
+                sel.Paste()
+
+                drwView = sel.Item2(1).Value
+                drwView.x = shapeDrawing1.originY + x
+                drwView.y = shapeDrawing1.originX - shapeDrawing1.sizeX + y
+            End If
+        Else
+            drwView.Angle = 0
+            If sheetNumber.Equals(i) Then
+                'An die gewünschte Stelle platzieren
+                drwView.x = shapeDrawing1.originX + x
+                drwView.y = shapeDrawing1.originY + y
+            Else
+                'View auf ein anderes Blatt verschieben
+                sel.Clear()
+                sel.Add(drwView)
+                sel.Cut()
+                sel.Add(sheets.Item(sheetNumber))
+                sel.Paste()
+
+                drwView = sel.Item2(1).Value
+                drwView.x = shapeDrawing1.originX + x
+                drwView.y = shapeDrawing1.originY + y
+            End If
+        End If
+
+        sel.Clear()
 
     End Sub
 
@@ -181,6 +241,29 @@ Module Data
                 End If
             End If
         Next i
+
+        'Doppelte Freiflächen entfernen
+        Dim j As Integer
+        For i = 0 To freeRects.Count - 1
+            For j = i + 1 To freeRects.Count - 1
+                If j = freeRects.Count Then Exit For
+                System.Console.WriteLine(i & " und " & j)
+                If freeRects.Item(j).contains(freeRects.Item(i)) Then
+                    freeRects.RemoveAt(i)
+                    System.Console.WriteLine("Entferne i")
+                    i = i - 1
+                    Exit For
+                End If
+
+                If freeRects.Item(i).contains(freeRects.Item(j)) Then
+                    freeRects.RemoveAt(j)
+                    System.Console.WriteLine("Entferne j")
+                    j = j - 1
+                End If
+            Next j
+        Next i
+
+
     End Sub
 
 End Module
