@@ -184,7 +184,7 @@ Module Data
             If sheetNumber.Equals(i) Then
                 'An die gewünschte Stelle platzieren
                 drwView.x = shapeDrawing1.originY + x
-                drwView.y = shapeDrawing1.originX - shapeDrawing1.sizeX + y
+                drwView.y = shapeDrawing1.sizeX - shapeDrawing1.originX + y
             Else
                 'View auf ein anderes Blatt verschieben
                 sel.Clear()
@@ -195,7 +195,7 @@ Module Data
 
                 drwView = sel.Item2(1).Value
                 drwView.x = shapeDrawing1.originY + x
-                drwView.y = shapeDrawing1.originX - shapeDrawing1.sizeX + y
+                drwView.y = shapeDrawing1.sizeX - shapeDrawing1.originX + y
             End If
         Else
             drwView.Angle = 0
