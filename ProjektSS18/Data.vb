@@ -64,6 +64,21 @@ Module Data
                         Call Nesting.btnNewSheet_Click(Nothing, Nothing)
                         currentSheet = currentSheet + 1
                         sheets.Item(currentSheet).Activate()
+                        Dim counter As Integer = 1
+                        For Each shapeDrawing2 In shapeDrawings
+                            If shapeDrawing2.count = shapeDrawing2.placed Then
+                                counter = counter + 1
+                                Continue For
+                            End If
+                            If shapeDrawing2.sizeX > sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide _
+                                And shapeDrawing2.sizeY > sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide Then
+                                counter = counter + 1
+                            End If
+                        Next shapeDrawing2
+                        If counter = shapeDrawings.Count Then
+                            MessageBox.Show("Die unplatzierten Zeichnung(en) sind zu groß für die Blätter!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                            Exit Sub
+                        End If
                         freeRects.Clear()
                         freeRects.Add(New Rect(sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide, sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide, distanceOutSide, distanceOutSide))
                         failedPlacements = 0
@@ -122,7 +137,6 @@ Module Data
                         failedPlacements = 0
                     Else
                         failedPlacements = failedPlacements + 1
-                        System.Console.WriteLine(shapeDrawing1.name & " konnte nicht platziert werden")
                         Exit Do
                     End If
                 Loop Until shapeDrawing1.placed = shapeDrawing1.count

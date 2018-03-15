@@ -1,4 +1,5 @@
-﻿Imports System.Runtime.InteropServices
+﻿Imports System.IO
+Imports System.Runtime.InteropServices
 
 Public Class Nesting
     Dim otherTrue As Boolean
@@ -166,7 +167,7 @@ Public Class Nesting
         openDialog.Multiselect = True
 
         If openDialog.ShowDialog = DialogResult.OK Then
-            'Zeichnung neu erstellen
+
             Dim mainIndex As Integer = -1
             Dim newIndex As Integer
             Dim sel As Selection
@@ -174,6 +175,7 @@ Public Class Nesting
             Dim alreadyLoaded As String = ""
             Dim loadError As String = ""
 
+            'Zeichnung neu erstellen
             If dataGridView.Rows.Count = 0 Then
                 CATIA.Documents.Add("Drawing")
                 sheets = CATIA.ActiveDocument.Sheets
@@ -183,6 +185,8 @@ Public Class Nesting
                 CATIA.ActiveWindow.ActiveViewer.Reframe()
                 'Index bestimmen für spätere Dokumentenwechsel
                 For i = 1 To CATIA.Documents.Count
+
+                    System.Console.WriteLine(i & "...." & CATIA.Documents.Item(i).Name)
                     If CATIA.Documents.Item(i).Equals(CATIA.ActiveDocument) Then
                         mainIndex = i
                         Exit For
@@ -193,7 +197,7 @@ Public Class Nesting
                 For i = 1 To CATIA.Documents.Count
                     'Nach einer Zeichnung suchen
                     Try
-                        sheets = CATIA.ActiveDocument.Sheets
+                        sheets = CATIA.Documents.Item(i).sheets
                     Catch ex As Exception
                         Continue For
                     End Try
@@ -204,6 +208,7 @@ Public Class Nesting
                 Next i
             End If
 
+            System.Console.WriteLine("MainIndex: " & mainIndex)
             If mainIndex = -1 Then
                 MessageBox.Show("Hauptzeichnung konnte nicht gefunden werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
@@ -214,25 +219,40 @@ Public Class Nesting
                 'Neues Objekt erzeugen
                 Dim shapeDrawing1 As New ShapeDrawing
                 Dim shapeDrawingSaved As ShapeDrawing
-                'Daten übernehmen und anpassen
-                CATIA.Documents.Open(fileName)
-                shapeDrawing1.name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
+                Dim loadName As String
+                loadName = fileName.Substring(fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1)
+
                 'Prüfen, ob die Datei schon geladen wurde
                 For Each shapeDrawingSaved In shapeDrawings
-                    If shapeDrawing1.name = shapeDrawingSaved.name Then
+                    If loadName.Replace(".CATDrawing", "") = shapeDrawingSaved.name Then
                         If alreadyLoaded.Length > 0 Then
-                            alreadyLoaded = alreadyLoaded & ", " & shapeDrawing1.name
+                            alreadyLoaded = alreadyLoaded & ", " & loadName.Replace(".CATDrawing", "")
                         Else
-                            alreadyLoaded = shapeDrawing1.name
+                            alreadyLoaded = loadName.Replace(".CATDrawing", "")
                         End If
                         Exit For
                     End If
                 Next
                 'Mit der nächsten Datei weitermachen, falls die Datei schon geladen wurde
-                If alreadyLoaded.Contains(shapeDrawing1.name) Then
-                    CATIA.ActiveDocument.Close()
-                    Continue For
-                End If
+                If alreadyLoaded.Contains(loadName.Replace(".CATDrawing", "")) Then Continue For
+
+                For i = 1 To CATIA.Documents.Count
+                    'Momentan geöffnete Zeichnung können nicht geladen werden
+                    If CATIA.Documents.Item(i).Name = loadName Then
+                        If loadError.Length > 0 Then
+                            loadError = loadError & ", " & loadName.Replace(".CATDrawing", "")
+                        Else
+                            loadError = loadName.Replace(".CATDrawing", "")
+                        End If
+                        Exit For
+                    End If
+                Next i
+                'Mit der nächsten Datei weitermachen
+                If loadError.Contains(loadName.Replace(".CATDrawing", "")) Then Continue For
+
+                'Daten übernehmen und anpassen
+                CATIA.Documents.Open(fileName)
+                shapeDrawing1.name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
 
                 shapeDrawing1.status = "Geladen"
                 shapeDrawing1.count = 1
@@ -256,8 +276,6 @@ Public Class Nesting
                 shapeDrawing1.sizeX = arr(1) - arr(0)
                 'Ymax-Ymin
                 shapeDrawing1.sizeY = arr(3) - arr(2)
-                System.Console.WriteLine("SizeX " & shapeDrawing1.sizeX)
-                System.Console.WriteLine("SizeY " & shapeDrawing1.sizeY)
                 'Ursprungspunkte speichern
                 shapeDrawing1.originX = sheets.ActiveSheet.Views.Item(3).x - arr(0)
                 shapeDrawing1.originY = sheets.ActiveSheet.Views.Item(3).y - arr(2)
@@ -284,11 +302,11 @@ Public Class Nesting
             If alreadyLoaded.Length > 0 Or loadError.Length > 0 Then
                 Dim msg As String = ""
                 If alreadyLoaded.Length > 0 Then
-                    msg = alreadyLoaded & " wurden schon geladen." & Environment.NewLine
+                    msg = alreadyLoaded & " wurde schon geladen." & Environment.NewLine
                 End If
 
                 If loadError.Length > 0 Then
-                    msg = msg & loadError & " konnten nicht geladen werden."
+                    msg = msg & loadError & " konnte nicht geladen werden."
                 End If
 
                 MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
