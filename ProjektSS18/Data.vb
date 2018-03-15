@@ -64,14 +64,20 @@ Module Data
                         Call Nesting.btnNewSheet_Click(Nothing, Nothing)
                         currentSheet = currentSheet + 1
                         sheets.Item(currentSheet).Activate()
-                        Dim counter As Integer = 1
+                        Dim counter As Integer = 0
                         For Each shapeDrawing2 In shapeDrawings
                             If shapeDrawing2.count = shapeDrawing2.placed Then
                                 counter = counter + 1
                                 Continue For
                             End If
-                            If shapeDrawing2.sizeX > sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide _
-                                And shapeDrawing2.sizeY > sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide Then
+                            System.Console.WriteLine(shapeDrawing2.sizeX & " ... " & sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide)
+                            System.Console.WriteLine(shapeDrawing2.sizeY & " ... " & sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide)
+
+                            If (shapeDrawing2.sizeX > sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide _
+                                Or shapeDrawing2.sizeY > sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide) _
+                                And (shapeDrawing2.sizeY > sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide _
+                                Or shapeDrawing2.sizeX > sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide) Then
+                                System.Console.WriteLine("Zu groß")
                                 counter = counter + 1
                             End If
                         Next shapeDrawing2
