@@ -7,7 +7,6 @@ Imports System.IO
 Public Class Exporter
 
     Public progMax As Integer
-    Public Property M_Doc_Structure As Object
 
     Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
@@ -23,10 +22,8 @@ Public Class Exporter
         Dim i As Integer    'Zählvariable for-next-schleife Parttyp Abfrage
         Dim k As Integer    'Zählvariable for-next-schleife namensvergebung
         Dim myPart As Part
-        Dim Dok As Object
         Dim name As String
         Dim exist As Integer    'variable um zu prüfen ob CATDrawing-Datei bereits existiert
-        Dim sheetmetalpart As Integer   'variable um zu prüfen ob's ein sheetmetalpart ist oder nicht
         Dim count As Integer        'Zählt die gespeicherten CATDrawing Dateien
 
         count = 0
@@ -45,33 +42,29 @@ Public Class Exporter
             Exit Sub
         End Try
 
+        '++++++++Verbesserung: Prüfen auf Produkt oder Part und als Boolean abspeichern
 
         'Nacheinander alle Parts abfragen:
         sel = CATIA.ActiveDocument.Selection
         sel.Clear()
         sel.Search("(CATPrtSearch.PartFeature),all")
-
+        '++++++++Verbesserung: Selection als Part Array und nur Sheetmetal speichern
         For i = 1 To sel.Count
             myPart = sel.Item2(i).Value
 
             'prüfen, ob Part eine Sheetmetal Datei ist:
             Try
                 Dim str As String = myPart.SheetMetalParameters.Name
-                System.Console.WriteLine(myPart.Parent.FullName & ": " & "Ein Sheetmetalpart")
-                sheetmetalpart = True
             Catch ex As Exception
-                System.Console.WriteLine(myPart.Name & ": " & "Kein Sheetmetalpart")
-                sheetmetalpart = False
+                Continue For
             End Try
 
 
-            'wenn Sheetmetal-Datei, dann ... in neuem Fenster öffnen und exportieren
-            If sheetmetalpart = True Then
+            name = myPart.Parent.FullName
+            CATIA.Documents.Open(name)
 
-                name = myPart.Parent.FullName
-                Dok = CATIA.Documents.Open(name)
-
-                progMax = 4
+            '++++++++Verbesserung: Progmax berechnen
+            progMax = 4
                 partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
                 partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
 
@@ -100,8 +93,10 @@ Public Class Exporter
 
                     outputPathNew = outputPath
                     exist = True
-                    k = 2
-                    Do                                      '...Namen um fortlaufende Nummer ergenzen...
+                k = 2
+
+                '++++++++Verbesserung: Checkbox Zahlen Produkt
+                Do                                      '...Namen um fortlaufende Nummer ergenzen...
                         If diffPath.Checked Then
                             outputPathNew = outputPathBox.Text & "\" & partName & "_" & k & ".CATDrawing"
                         Else
@@ -142,15 +137,15 @@ Public Class Exporter
                     While Not File.Exists(fileDxf)
                         Thread.Sleep(500)
                         timeElapsed = timeElapsed + 1
-                        'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-                        If timeElapsed > 60 Then
-                            MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                            'UI aktivieren
-                            btnBack1.Enabled = True
-                            Button1.Enabled = True
-                            Exit Sub
-                        End If
-                    End While
+                    'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
+                    If timeElapsed > 6 Then
+                        MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        'UI aktivieren
+                        btnBack1.Enabled = True
+                        Button1.Enabled = True
+                        Exit Sub
+                    End If
+                End While
 
                     '##ProgressUpdate
                     progUpdate(partName + ".dxf öffnen")
@@ -194,7 +189,6 @@ Public Class Exporter
 
                 count = count + 1   'zählen der gespeicherten Dateien
 
-            End If
 
         Next i  'Nächstes Bauteil im Strukturbaum prüfen
 
