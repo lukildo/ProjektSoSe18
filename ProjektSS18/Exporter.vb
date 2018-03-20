@@ -19,6 +19,10 @@ Public Class Exporter
         Dim fileDxf As String
         Dim timeElapsed As Integer
 
+        Dim myPart As Part
+        Dim savedParts As New Dictionary(Of Part, Integer)
+        Dim isPart As Boolean
+
         'UI blockieren
         btnBack1.Enabled = False
         Button1.Enabled = False
@@ -33,115 +37,152 @@ Public Class Exporter
             Exit Sub
         End Try
 
-        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") Then
+        If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") _
+            And Not CATIA.GetWorkbenchId.Equals("Assembly") Or CATIA.Documents.Count = 0 Then
             'Fehlermeldung wenn es kein Sheetmetal Part ist
-            MessageBox.Show("Kein Sheetmetal Part geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Kein Sheetmetal Part oder Produkt geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             'UI aktivieren
             btnBack1.Enabled = True
             Button1.Enabled = True
             Exit Sub
         End If
 
-        progMax = 4
-        partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
-        partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
+        'Part oder Produkt geöffnet
+        isPart = CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Or CATIA.GetWorkbenchId.Equals("SheWorkshop")
 
-        'Output festlegen
-        If diffPath.Checked Then
-            outputPath = outputPathBox.Text + "\" + partName + ".CATDrawing"
-        Else
-            outputPath = partNamePath + ".CATDrawing"
-        End If
-
-        'Mit Speicherung den Pfad zurücksetzen
-        Try
-            My.Computer.FileSystem.RenameFile(CATIA.ActiveDocument.FullName, partName + "S4ve.CATPart")
-            CATIA.ActiveDocument.SaveAs(partNamePath + ".CATPart")
-        Catch ex As Exception
-            If TypeOf ex Is IOException Then
-                System.Console.WriteLine("Fehler beim Umbenennen der Datei:" + ex.Message)
-            End If
-        End Try
-
-        While Not File.Exists(partNamePath + ".CATPart")
-            Thread.Sleep(500)
-            timeElapsed = timeElapsed + 1
-            'Fehlermeldung, falls es Probleme beim Speichern gab
-            If timeElapsed > 6 Then
-                'Sicherungsdatei verwenden
-                My.Computer.FileSystem.RenameFile(partNamePath + "S4ve.CATPart", partName + ".CATPart")
-                MessageBox.Show(partName + " konnte nicht gespeichert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                'UI aktivieren
-                btnBack1.Enabled = True
-                Button1.Enabled = True
-                Exit Sub
-            End If
-        End While
-        'Sicherungsdatei kann gelöscht werden, wenn alles geklappt hat
-        File.Delete(partNamePath + "S4ve.CATPart")
-        'Datei löschen, falls schon vorhanden
-        fileDxf = CATIA.ActiveDocument.FullName.Replace("CATPart", "dxf")
-        If File.Exists(fileDxf) Then File.Delete(fileDxf)
-
-        '##ProgressUpdate
-        progUpdate(partName + ".dxf exportieren")
-
-        'Catia in den Vordergrund
-        AppActivate("CATIA")
-        'Command ausführen, noch unschön
-        CATIA.StartCommand("Als DXF sichern")
-        'jeweils auf das öffnen der Fenster warten
-        Thread.Sleep(500)
-        SendKeys.Send("{ENTER}")
-        Thread.Sleep(500)
-        SendKeys.Send("{ENTER}")
-
-        timeElapsed = 0
-        While Not File.Exists(fileDxf)
-            Thread.Sleep(500)
-            timeElapsed = timeElapsed + 1
-            'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-            If timeElapsed > 6 Then
-                MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                'UI aktivieren
-                btnBack1.Enabled = True
-                Button1.Enabled = True
-                Exit Sub
-            End If
-        End While
-
-        '##ProgressUpdate
-        progUpdate(partName + ".dxf öffnen")
-
-        'Exportierte Datei öffnen
-        CATIA.Documents.Open(fileDxf)
-        'DXF wird nicht mehr gebraucht
-        File.Delete(fileDxf)
-
-        '##ProgressUpdate
-        progUpdate(partName + ".dxf anpassen und speichern")
-
-        'alles selektieren und Linienart und Linienbreite anpassen
+        CATIA.Interactive = False
         sel = CATIA.ActiveDocument.Selection
-        sel.Search("Type=*,all")
-        CATIA.ActiveDocument.Selection.VisProperties.SetRealLineType(1, 0)
-        CATIA.ActiveDocument.Selection.VisProperties.SetRealWidth(1, 0)
+        sel.Clear()
+        sel.Search("(CATPrtSearch.PartFeature),all")
+
+        For i = 1 To sel.Count
+            myPart = sel.Item2(i).Value
+
+            'auf Sheetmetal prüfen
+            Try
+                Dim str As String = myPart.SheetMetalParameters.Name
+            Catch ex As Exception
+                Continue For
+            End Try
+
+            'doppelte Parts mit Anzahl speichern
+            If checkBoxSave.Checked And savedParts.ContainsKey(myPart) Then
+                savedParts(myPart) += 1
+            ElseIf Not savedParts.ContainsKey(myPart) Then
+                savedParts.Add(myPart, 1)
+            End If
+        Next i
         sel.Clear()
 
-        'erstes Objekt nach dem Achsensystem ist Start der Außenkontur
-        sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.GeometricElements.Item(2))
-        CATIA.StartCommand("Automatische Suche")
-        'Außenkontur Farbe anpassen
-        CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
-        sel.Clear()
+        'Abschnitte der ProgressBar berechnen
+        progMax = 4 * savedParts.Count
 
-        'Datei überschreiben und speichern
-        If File.Exists(outputPath) Then File.Delete(outputPath)
-        CATIA.ActiveDocument.SaveAs(outputPath)
+        'Liste durchgehen und exportieren
+        For Each kvp As KeyValuePair(Of Part, Integer) In savedParts
 
-        '##ProgressUpdate
-        progUpdate(partName + ".CATDrawing fertig")
+            If Not isPart Then
+                CATIA.Documents.Open(kvp.Key.Parent.FullName)
+            End If
+
+            partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
+            partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
+
+            'Output festlegen
+            If diffPath.Checked Then
+                outputPath = outputPathBox.Text + "\" + partName + "_Laser.CATDrawing"
+            Else
+                outputPath = partNamePath + "_Laser.CATDrawing"
+            End If
+
+            'Datei löschen, falls schon vorhanden
+            fileDxf = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) & Path.DirectorySeparatorChar & partName & ".dxf"
+            If File.Exists(fileDxf) Then File.Delete(fileDxf)
+
+            '##ProgressUpdate
+            progUpdate(partName + ".dxf exportieren")
+
+            'Catia in den Vordergrund
+            AppActivate("CATIA")
+            'Command ausführen, noch unschön
+            CATIA.StartCommand("Als DXF sichern")
+            'jeweils auf das öffnen der Fenster warten
+            Thread.Sleep(500)
+            SendKeys.Send("{ENTER}")
+            Thread.Sleep(500)
+            'Verzeichnis auf Desktop wechseln und vorher Verzeichnis ändern
+            SendKeys.Send("{%}appdata{%}{ENTER}shell:Desktop{ENTER}{ENTER}")
+
+            timeElapsed = 0
+            While Not File.Exists(fileDxf)
+                Thread.Sleep(500)
+                timeElapsed = timeElapsed + 1
+                'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
+                If timeElapsed > 5 Then
+                    'UI aktivieren
+                    btnBack1.Enabled = True
+                    Button1.Enabled = True
+
+                    CATIA.Interactive = True
+                    MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+            End While
+
+            '##ProgressUpdate
+            progUpdate(partName + ".dxf öffnen")
+
+            'Exportierte Datei öffnen
+            CATIA.Documents.Open(fileDxf)
+            'DXF wird nicht mehr gebraucht
+            File.Delete(fileDxf)
+
+            '##ProgressUpdate
+            progUpdate(partName + ".dxf anpassen und speichern")
+
+            'alles selektieren und Linienart und Linienbreite anpassen
+            sel = CATIA.ActiveDocument.Selection
+            sel.Clear()
+            sel.Search("Type=*,all")
+            CATIA.ActiveDocument.Selection.VisProperties.SetRealLineType(1, 0)
+            CATIA.ActiveDocument.Selection.VisProperties.SetRealWidth(1, 0)
+            sel.Clear()
+
+            'erstes Objekt nach dem Achsensystem ist Start der Außenkontur
+            sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.GeometricElements.Item(2))
+            CATIA.StartCommand("Automatische Suche")
+            'Außenkontur Farbe anpassen
+            CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
+            sel.Clear()
+
+            'Datei überschreiben und speichern
+            If File.Exists(outputPath) Then File.Delete(outputPath)
+            CATIA.ActiveDocument.SaveAs(outputPath)
+
+            'Doppelte Teile einzeln speichern
+            If kvp.Value > 1 Then
+                Dim outputPathNew As String
+                For i = 2 To kvp.Value
+                    outputPathNew = outputPath.Replace(".CATDrawing", i & ".CATDrawing")
+                    If File.Exists(outputPathNew) Then File.Delete(outputPathNew)
+                    File.Copy(outputPath, outputPathNew)
+                Next i
+            End If
+            'Zeichnung und Part schließen
+            CATIA.ActiveDocument.Close()
+            If Not isPart Then
+                CATIA.ActiveDocument.Close()
+            End If
+            '##ProgressUpdate
+            progUpdate(partName + "_Laser.CATDrawing fertig")
+        Next kvp
+
+        If savedParts.Count = 1 Then
+            progUpdate(partName + "_Laser.CATDrawing fertig", 100)
+        Else
+            progUpdate("Alle " & savedParts.Count & " (verschiedenen) Parts wurden exportiert!", 100)
+        End If
         'UI aktivieren
+        CATIA.Interactive = True
         btnBack1.Enabled = True
         Button1.Enabled = True
     End Sub

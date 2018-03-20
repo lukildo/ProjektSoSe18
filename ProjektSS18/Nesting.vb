@@ -1,18 +1,13 @@
-﻿Imports System.Runtime.InteropServices
+﻿Imports System.IO
+Imports System.Runtime.InteropServices
 
 Public Class Nesting
     Dim otherTrue As Boolean
 
     Private Sub Nesting_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        'dataGrid.Rows.Add("Grundplatte", "200x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Gelenk1", "200x22 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Gelenk2", "340x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Blech", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Blech1", "20x200 mm", "1", "Geladen", "Einfügen", "Löschen")
-        'dataGrid.Rows.Add("Aufbau", "200x40 mm", "1", "Geladen", "Einfügen", "Löschen")
-
         'Startwerte setzen
+        shapeDrawings.Clear()
+        dataGrid = dataGridView
         lblError.Visible = False
         comboMaterial.SelectedIndex = 0
         comboSize.SelectedIndex = 0
@@ -26,7 +21,7 @@ Public Class Nesting
 
     Private Sub btnBack_Click(sender As Object, e As EventArgs) Handles btnBack.Click
         'Abfrage, wenn schon Daten geladen worden sind
-        If dataGrid.Rows.Count > 0 Then
+        If dataGridView.Rows.Count > 0 Then
             Dim result As DialogResult
             result = MessageBox.Show("Sind Sie sicher? Alle geladenen Daten werden gelöscht.", "Sicher?", MessageBoxButtons.YesNo)
 
@@ -38,8 +33,6 @@ Public Class Nesting
             Main.Show()
             Me.Close()
         End If
-
-
     End Sub
 
     Private Sub comboMaterial_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comboMaterial.SelectedIndexChanged
@@ -128,7 +121,7 @@ Public Class Nesting
         End If
     End Sub
 
-    Private Sub btnNewSheet_Click(sender As Object, e As EventArgs) Handles btnNewSheet.Click
+    Public Sub btnNewSheet_Click(sender As Object, e As EventArgs) Handles btnNewSheet.Click
 
         Dim CATIA As INFITF.Application
 
@@ -174,15 +167,16 @@ Public Class Nesting
         openDialog.Multiselect = True
 
         If openDialog.ShowDialog = DialogResult.OK Then
-            'Zeichnung neu erstellen
+
             Dim mainIndex As Integer = -1
             Dim newIndex As Integer
             Dim sel As Selection
             Dim sheets As DrawingSheets
-            Dim alreadyLoaded As String = ""
+            Dim alreadyLoaded As Boolean
             Dim loadError As String = ""
 
-            If dataGrid.Rows.Count = 0 Then
+            'Zeichnung neu erstellen
+            If dataGridView.Rows.Count = 0 Then
                 CATIA.Documents.Add("Drawing")
                 sheets = CATIA.ActiveDocument.Sheets
                 sheets.Add("Blatt 1 - " & comboSize.Text & " - " & comboMaterial.Text)
@@ -201,7 +195,7 @@ Public Class Nesting
                 For i = 1 To CATIA.Documents.Count
                     'Nach einer Zeichnung suchen
                     Try
-                        sheets = CATIA.ActiveDocument.Sheets
+                        sheets = CATIA.Documents.Item(i).sheets
                     Catch ex As Exception
                         Continue For
                     End Try
@@ -222,30 +216,53 @@ Public Class Nesting
                 'Neues Objekt erzeugen
                 Dim shapeDrawing1 As New ShapeDrawing
                 Dim shapeDrawingSaved As ShapeDrawing
-                'Daten übernehmen und anpassen
-                CATIA.Documents.Open(fileName)
-                shapeDrawing1.Name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
+                Dim loadPartName As String
+                Dim loadName As String
+                Dim counter As Integer = 0
+
+                loadPartName = fileName.Substring(fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1)
+                If loadPartName.Contains("_Laser") Then
+                    loadName = loadPartName.Substring(0, loadPartName.LastIndexOf("_"))
+                    For Each fileName2 In openDialog.FileNames
+                        If fileName2.Contains(loadName) Then counter += 1
+                    Next fileName2
+                Else
+                    counter = 1
+                    loadName = loadPartName.Replace(".CATDrawing", "")
+                End If
+                alreadyLoaded = False
                 'Prüfen, ob die Datei schon geladen wurde
                 For Each shapeDrawingSaved In shapeDrawings
-                    If shapeDrawing1.Name = shapeDrawingSaved.Name Then
-                        If alreadyLoaded.Length > 0 Then
-                            alreadyLoaded = alreadyLoaded & ", " & shapeDrawing1.Name
-                        Else
-                            alreadyLoaded = shapeDrawing1.Name
-                        End If
+                    If loadName = shapeDrawingSaved.name Then
+                        alreadyLoaded = True
                         Exit For
                     End If
                 Next
                 'Mit der nächsten Datei weitermachen, falls die Datei schon geladen wurde
-                If alreadyLoaded.Contains(shapeDrawing1.Name) Then
-                    CATIA.ActiveDocument.Close()
-                    Continue For
-                End If
+                If alreadyLoaded Then Continue For
+
+                For i = 1 To CATIA.Documents.Count
+                    'Momentan geöffnete Zeichnung können nicht geladen werden
+                    If CATIA.Documents.Item(i).Name = loadPartName Then
+                        If loadError.Length > 0 Then
+                            loadError = loadError & ", " & loadName
+                        Else
+                            loadError = loadName
+                        End If
+                        Exit For
+                    End If
+                Next i
+                'Mit der nächsten Datei weitermachen
+                If loadError.Contains(loadName) Then Continue For
+
+                'Daten übernehmen und anpassen
+                CATIA.Documents.Open(fileName)
+                shapeDrawing1.name = loadName
 
                 shapeDrawing1.status = "Geladen"
-                shapeDrawing1.count = 1
+                shapeDrawing1.count = counter
                 sheets = CATIA.ActiveDocument.Sheets
-                sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.Name, "")
+                sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.name, "")
                 'Dokumentenindex bestimmen
                 For i = 1 To CATIA.Documents.Count
                     If CATIA.Documents.Item(i).Equals(CATIA.ActiveDocument) Then
@@ -253,57 +270,52 @@ Public Class Nesting
                         Exit For
                     End If
                 Next i
+                'Main View aktivieren, um Koordinatenprobleme zu vermeiden
+                sheets.ActiveSheet.Views.Item(1).Activate()
 
                 'Variant Array
                 Dim arr(4)
                 'Größe der BoundingBox
-                sheets.ActiveSheet.Views.ActiveView.Size(arr)
+                sheets.ActiveSheet.Views.Item(3).Size(arr)
                 'Xmax - Xmin
                 shapeDrawing1.sizeX = arr(1) - arr(0)
                 'Ymax-Ymin
                 shapeDrawing1.sizeY = arr(3) - arr(2)
                 'Ursprungspunkte speichern
-                shapeDrawing1.originX = sheets.ActiveSheet.Views.ActiveView.x - arr(0)
-                shapeDrawing1.originY = sheets.ActiveSheet.Views.ActiveView.y - arr(2)
+                shapeDrawing1.originX = sheets.ActiveSheet.Views.Item(3).x - arr(0)
+                shapeDrawing1.originY = sheets.ActiveSheet.Views.Item(3).y - arr(2)
                 'DrawingView kopieren
                 sel = CATIA.ActiveDocument.Selection
-                sel.Add(sheets.ActiveSheet.Views.ActiveView)
+                sel.Add(sheets.ActiveSheet.Views.Item(3))
                 sel.Copy()
                 'Dokument wechseln und einfügen
                 CATIA.Documents.Item(mainIndex).Activate()
                 sheets = CATIA.ActiveDocument.Sheets
                 sel = CATIA.ActiveDocument.Selection
-                sel.Add(sheets.Item(sheets.Count))
-                sel.Paste()
-                sel.Clear()
+                For i = 1 To counter
+                    sel.Add(sheets.Item(sheets.Count))
+                    sel.Paste()
+                    sel.Clear()
+                Next i
 
                 CATIA.Documents.Item(newIndex).Close()
-
                 'Daten in das globale Array übernehmen
                 shapeDrawings.Add(shapeDrawing1)
                 'Daten darstellen
-                shapeDrawing1.updateGrid(dataGrid)
+                shapeDrawing1.updateGrid(dataGridView)
             Next fileName
 
-            If alreadyLoaded.Length > 0 Or loadError.Length > 0 Then
-                Dim msg As String = ""
-                If alreadyLoaded.Length > 0 Then
-                    msg = alreadyLoaded & " wurden schon geladen." & Environment.NewLine
-                End If
+            If loadError.Length > 0 Then
 
-                If loadError.Length > 0 Then
-                    msg = msg & loadError & " konnten nicht geladen werden."
-                End If
-
-                MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End If
+                MessageBox.Show(loadError & " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
         Else
             'Abbrechen
             Exit Sub
         End If
     End Sub
 
-    Private Sub dataGrid_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dataGrid.CellContentClick
+    Private Sub dataGrid_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles dataGridView.CellContentClick
         'Einfügen
         If e.ColumnIndex = 4 Then
             Dim shapeDrawing1 As ShapeDrawing
@@ -318,14 +330,23 @@ Public Class Nesting
                 Exit Sub
             End Try
 
+            Dim sheets As DrawingSheets
+            Try
+                sheets = CATIA.ActiveDocument.Sheets
+            Catch ex As Exception
+                'Fehlermeldung
+                MessageBox.Show("Keine Zeichnung geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Exit Sub
+            End Try
+
             'Objekt aus der Liste finden
-            shapeDrawing1 = shapeDrawings.Find(Function(x) x.Name = dataGrid.Rows(e.RowIndex).Cells(0).Value)
+            shapeDrawing1 = shapeDrawings.Find(Function(x) x.name = dataGridView.Rows(e.RowIndex).Cells(0).Value)
             If shapeDrawing1 IsNot Nothing Then
                 Dim sel As Selection
 
                 sel = CATIA.ActiveDocument.Selection
                 sel.Clear()
-                sel.Search("Name=" & shapeDrawing1.Name & "*,all")
+                sel.Search("Name=" & shapeDrawing1.name & "*,all")
                 'Prüfen, ob gespeicherte Daten mit Daten in Catia übereinstimmen
                 If Not sel.Count2 = shapeDrawing1.count Then
                     MessageBox.Show("Liste vorher aktualisieren!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -344,13 +365,14 @@ Public Class Nesting
                 sel.Clear()
 
                 'Eingefügte DrawingView verschieben
-                Dim sheets As DrawingSheets = CATIA.ActiveDocument.Sheets
-                Dim drwView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
+                sheets = CATIA.ActiveDocument.Sheets
+                Dim drwView As DrawingView = sheets.ActiveSheet.Views.Item(sheets.ActiveSheet.Views.Count)
+                drwView.Angle = 0
                 drwView.x = shapeDrawing1.originX
                 drwView.y = shapeDrawing1.originY
 
                 shapeDrawing1.count = shapeDrawing1.count + 1
-                shapeDrawing1.updateGrid(dataGrid)
+                shapeDrawing1.updateGrid(dataGridView)
             End If
             'Löschen
         ElseIf e.ColumnIndex = 5 Then
@@ -367,13 +389,13 @@ Public Class Nesting
             End Try
 
             'Objekt aus der Liste finden
-            shapeDrawing1 = shapeDrawings.Find(Function(x) x.Name = dataGrid.Rows(e.RowIndex).Cells(0).Value)
+            shapeDrawing1 = shapeDrawings.Find(Function(x) x.name = dataGridView.Rows(e.RowIndex).Cells(0).Value)
             If shapeDrawing1 IsNot Nothing Then
                 Dim sel As Selection
 
                 sel = CATIA.ActiveDocument.Selection
                 sel.Clear()
-                sel.Search("Name=" & shapeDrawing1.Name & "*,all")
+                sel.Search("Name=" & shapeDrawing1.name & "+Name=" & shapeDrawing1.name & "[*" & ",all")
                 'Prüfen, ob gespeicherte Daten mit Daten in Catia übereinstimmen
                 If Not sel.Count2 = shapeDrawing1.count Then
                     MessageBox.Show("Liste vorher aktualisieren!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -391,9 +413,9 @@ Public Class Nesting
                 'Löschen, wenn alle Views gelöscht wurden
                 If shapeDrawing1.count = 0 Then
                     shapeDrawings.Remove(shapeDrawing1)
-                    dataGrid.Rows.Remove(dataGrid.Rows(e.RowIndex))
+                    dataGridView.Rows.Remove(dataGridView.Rows(e.RowIndex))
                 Else
-                    shapeDrawing1.updateGrid(dataGrid)
+                    shapeDrawing1.updateGrid(dataGridView)
                 End If
             End If
         End If
@@ -415,5 +437,89 @@ Public Class Nesting
             sheet.SetPaperHeight(txtBoxHeight.Text)
             sheet.SetPaperWidth(txtBoxWidth.Text)
         End If
+    End Sub
+    'Benutzereingaben prüfen
+    Private Sub txtBoxDistanceOutside_Leave(sender As Object, e As EventArgs) Handles txtBoxDistanceOutside.Leave
+        Dim value As Integer
+
+        'Auf den Standardwert zurücksetzen, wenn die Eingabe nicht passt
+        If Int32.TryParse(txtBoxDistanceOutside.Text, value) Then
+            If value > 99 And value < 0 Then txtBoxDistanceOutside.Text = 5
+        Else
+            txtBoxDistanceOutside.Text = 5
+        End If
+    End Sub
+    'Benutzereingaben prüfen
+    Private Sub txtBoxDistanceInside_TextChanged(sender As Object, e As EventArgs) Handles txtBoxDistanceInside.TextChanged
+        Dim value As Integer
+
+        'Auf den Standardwert zurücksetzen, wenn die Eingabe nicht passt
+        If Int32.TryParse(txtBoxDistanceInside.Text, value) Then
+            If value > 99 And value < 0 Then txtBoxDistanceInside.Text = 5
+        Else
+            txtBoxDistanceInside.Text = 5
+        End If
+    End Sub
+
+    Private Sub btnNesting_Click(sender As Object, e As EventArgs) Handles btnNesting.Click
+        'Liste erst aktualisieren
+        Call btnRefresh_Click(Nothing, Nothing)
+        'UI Werte weitergeben
+        autoPosition(chkBoxAuto.Checked, txtBoxDistanceInside.Text, txtBoxDistanceOutside.Text)
+    End Sub
+    'Aktualisieren
+    Private Sub btnRefresh_Click(sender As Object, e As EventArgs) Handles btnRefresh.Click
+        Dim Catia As INFITF.Application
+        Dim sel As Selection
+        Dim i As Integer
+        Dim removeList As New List(Of ShapeDrawing)
+
+        'Catia Verbindung aufbauen
+        Try
+            Catia = Marshal.GetActiveObject("CATIA.Application")
+        Catch ex As COMException
+            'Fehlermeldung bei Verbindungsproblem und Programmende
+            MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
+
+        Dim sheets As DrawingSheets
+        Try
+            sheets = Catia.ActiveDocument.Sheets
+        Catch ex As Exception
+            'Fehlermeldung
+            MessageBox.Show("Keine Zeichnung geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
+
+        sel = Catia.ActiveDocument.Selection
+
+        For Each shapeDrawing1 In shapeDrawings
+            sel.Clear()
+            sel.Search("Name=" & shapeDrawing1.name & "+Name=" & shapeDrawing1.name & "[*,all")
+            'Gespeicherte Anzahl stimmt mit der aktuellen Anzahl überein
+            If shapeDrawing1.count = sel.Count2 Then Continue For
+
+            'Falls gelöscht auch Daten löschen
+            If sel.Count2 = 0 Then
+                removeList.Add(shapeDrawing1)
+                For i = 1 To dataGridView.Rows.Count
+                    If dataGridView.Rows(i - 1).Cells(0).Value = shapeDrawing1.name Then
+                        dataGridView.Rows.Remove(dataGridView.Rows(i - 1))
+                        Exit For
+                    End If
+                Next i
+            Else
+                'Daten in der Liste aktualisieren
+                shapeDrawing1.count = sel.Count2
+                shapeDrawing1.updateGrid(dataGridView)
+            End If
+        Next shapeDrawing1
+        sel.Clear()
+
+        'Alle gelöschten Daten aus der Liste entfernen
+        For Each shapeDrawing1 In removeList
+            shapeDrawings.Remove(shapeDrawing1)
+        Next shapeDrawing1
     End Sub
 End Class

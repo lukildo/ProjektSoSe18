@@ -32,6 +32,7 @@ Partial Class Exporter
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.outputPathBox = New System.Windows.Forms.TextBox()
         Me.btnBack1 = New System.Windows.Forms.Button()
+        Me.checkBoxSave = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -112,7 +113,7 @@ Partial Class Exporter
         Me.GroupBox1.Controls.Add(Me.samePath)
         Me.GroupBox1.Controls.Add(Me.diffPath)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.GroupBox1.Location = New System.Drawing.Point(12, 87)
+        Me.GroupBox1.Location = New System.Drawing.Point(12, 70)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(315, 66)
         Me.GroupBox1.TabIndex = 7
@@ -143,11 +144,24 @@ Partial Class Exporter
         Me.btnBack1.Text = "Zurück"
         Me.btnBack1.UseVisualStyleBackColor = True
         '
+        'checkBoxSave
+        '
+        Me.checkBoxSave.AutoSize = True
+        Me.checkBoxSave.Checked = True
+        Me.checkBoxSave.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.checkBoxSave.Location = New System.Drawing.Point(12, 143)
+        Me.checkBoxSave.Name = "checkBoxSave"
+        Me.checkBoxSave.Size = New System.Drawing.Size(191, 17)
+        Me.checkBoxSave.TabIndex = 8
+        Me.checkBoxSave.Text = "Gleiche Parts mehrfach exportieren"
+        Me.checkBoxSave.UseVisualStyleBackColor = True
+        '
         'Exporter
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(339, 276)
+        Me.Controls.Add(Me.checkBoxSave)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.progressLbl)
@@ -174,4 +188,5 @@ Partial Class Exporter
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents outputPathBox As TextBox
     Friend WithEvents btnBack1 As Button
+    Friend WithEvents checkBoxSave As CheckBox
 End Class

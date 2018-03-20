@@ -8,6 +8,7 @@
     Private m_originY As Double
     Private m_status As String
     Private m_count As Integer
+    Private m_placed As Integer
 
     'Konstruktor
     Public Sub New()
@@ -15,7 +16,7 @@
     End Sub
 
     'Getter-Setter
-    Public Property Name() As String
+    Public Property name As String
         Get
             Return m_name
         End Get
@@ -78,6 +79,15 @@
         End Set
     End Property
 
+    Public Property placed As Integer
+        Get
+            Return m_placed
+        End Get
+        Set(value As Integer)
+            m_placed = value
+        End Set
+    End Property
+
     'aktuelle Daten in das übergebene DataGrid eintragen
     Public Sub updateGrid(ByVal dataGrid As DataGridView)
         Dim i As Integer
@@ -92,7 +102,6 @@
         Next i
 
         Dim size As String
-
         size = Math.Round(m_sizeX) & " x " & Math.Round(m_sizeY) & " mm"
         dataGrid.Rows.Add(m_name, size, m_count, m_status, "Einfügen", "Löschen")
     End Sub
