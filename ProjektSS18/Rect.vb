@@ -87,7 +87,6 @@
 
     Public Function rotated() As Rect
         'Werte tauschen für Drehung um 90°
-
         Return New Rect(m_sizeY, m_sizeX, m_originX, m_originY)
     End Function
 

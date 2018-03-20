@@ -26,7 +26,6 @@ Public Class Exporter
         'UI blockieren
         btnBack1.Enabled = False
         Button1.Enabled = False
-
         progBar.Value = 0
 
         'Catia Verbindung aufbauen
@@ -47,6 +46,7 @@ Public Class Exporter
             Button1.Enabled = True
             Exit Sub
         End If
+
         'Part oder Produkt geöffnet
         isPart = CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Or CATIA.GetWorkbenchId.Equals("SheWorkshop")
 
@@ -76,7 +76,6 @@ Public Class Exporter
 
         'Abschnitte der ProgressBar berechnen
         progMax = 4 * savedParts.Count
-
 
         'Liste durchgehen und exportieren
         For Each kvp As KeyValuePair(Of Part, Integer) In savedParts

@@ -172,7 +172,7 @@ Public Class Nesting
             Dim newIndex As Integer
             Dim sel As Selection
             Dim sheets As DrawingSheets
-            Dim alreadyLoaded As String = ""
+            Dim alreadyLoaded As Boolean
             Dim loadError As String = ""
 
             'Zeichnung neu erstellen
@@ -185,8 +185,6 @@ Public Class Nesting
                 CATIA.ActiveWindow.ActiveViewer.Reframe()
                 'Index bestimmen für spätere Dokumentenwechsel
                 For i = 1 To CATIA.Documents.Count
-
-                    System.Console.WriteLine(i & "...." & CATIA.Documents.Item(i).Name)
                     If CATIA.Documents.Item(i).Equals(CATIA.ActiveDocument) Then
                         mainIndex = i
                         Exit For
@@ -208,7 +206,6 @@ Public Class Nesting
                 Next i
             End If
 
-            System.Console.WriteLine("MainIndex: " & mainIndex)
             If mainIndex = -1 Then
                 MessageBox.Show("Hauptzeichnung konnte nicht gefunden werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Exit Sub
@@ -219,43 +216,51 @@ Public Class Nesting
                 'Neues Objekt erzeugen
                 Dim shapeDrawing1 As New ShapeDrawing
                 Dim shapeDrawingSaved As ShapeDrawing
+                Dim loadPartName As String
                 Dim loadName As String
-                loadName = fileName.Substring(fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1)
+                Dim counter As Integer = 0
 
+                loadPartName = fileName.Substring(fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1)
+                If loadPartName.Contains("_Laser") Then
+                    loadName = loadPartName.Substring(0, loadPartName.LastIndexOf("_"))
+                    For Each fileName2 In openDialog.FileNames
+                        If fileName2.Contains(loadName) Then counter += 1
+                    Next fileName2
+                Else
+                    counter = 1
+                    loadName = loadPartName.Replace(".CATDrawing", "")
+                End If
+                alreadyLoaded = False
                 'Prüfen, ob die Datei schon geladen wurde
                 For Each shapeDrawingSaved In shapeDrawings
-                    If loadName.Replace(".CATDrawing", "") = shapeDrawingSaved.name Then
-                        If alreadyLoaded.Length > 0 Then
-                            alreadyLoaded = alreadyLoaded & ", " & loadName.Replace(".CATDrawing", "")
-                        Else
-                            alreadyLoaded = loadName.Replace(".CATDrawing", "")
-                        End If
+                    If loadName = shapeDrawingSaved.name Then
+                        alreadyLoaded = True
                         Exit For
                     End If
                 Next
                 'Mit der nächsten Datei weitermachen, falls die Datei schon geladen wurde
-                If alreadyLoaded.Contains(loadName.Replace(".CATDrawing", "")) Then Continue For
+                If alreadyLoaded Then Continue For
 
                 For i = 1 To CATIA.Documents.Count
                     'Momentan geöffnete Zeichnung können nicht geladen werden
-                    If CATIA.Documents.Item(i).Name = loadName Then
+                    If CATIA.Documents.Item(i).Name = loadPartName Then
                         If loadError.Length > 0 Then
-                            loadError = loadError & ", " & loadName.Replace(".CATDrawing", "")
+                            loadError = loadError & ", " & loadName
                         Else
-                            loadError = loadName.Replace(".CATDrawing", "")
+                            loadError = loadName
                         End If
                         Exit For
                     End If
                 Next i
                 'Mit der nächsten Datei weitermachen
-                If loadError.Contains(loadName.Replace(".CATDrawing", "")) Then Continue For
+                If loadError.Contains(loadName) Then Continue For
 
                 'Daten übernehmen und anpassen
                 CATIA.Documents.Open(fileName)
-                shapeDrawing1.name = CATIA.ActiveDocument.Name.Replace(".CATDrawing", "")
+                shapeDrawing1.name = loadName
 
                 shapeDrawing1.status = "Geladen"
-                shapeDrawing1.count = 1
+                shapeDrawing1.count = counter
                 sheets = CATIA.ActiveDocument.Sheets
                 sheets.ActiveSheet.Views.ActiveView.SetViewName("", shapeDrawing1.name, "")
                 'Dokumentenindex bestimmen
@@ -287,30 +292,23 @@ Public Class Nesting
                 CATIA.Documents.Item(mainIndex).Activate()
                 sheets = CATIA.ActiveDocument.Sheets
                 sel = CATIA.ActiveDocument.Selection
-                sel.Add(sheets.Item(sheets.Count))
-                sel.Paste()
-                sel.Clear()
+                For i = 1 To counter
+                    sel.Add(sheets.Item(sheets.Count))
+                    sel.Paste()
+                    sel.Clear()
+                Next i
 
                 CATIA.Documents.Item(newIndex).Close()
-
                 'Daten in das globale Array übernehmen
                 shapeDrawings.Add(shapeDrawing1)
                 'Daten darstellen
                 shapeDrawing1.updateGrid(dataGridView)
             Next fileName
 
-            If alreadyLoaded.Length > 0 Or loadError.Length > 0 Then
-                Dim msg As String = ""
-                If alreadyLoaded.Length > 0 Then
-                    msg = alreadyLoaded & " wurde schon geladen." & Environment.NewLine
-                End If
+            If loadError.Length > 0 Then
 
-                If loadError.Length > 0 Then
-                    msg = msg & loadError & " konnte nicht geladen werden."
-                End If
-
-                MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            End If
+                MessageBox.Show(loadError & " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
         Else
             'Abbrechen
             Exit Sub

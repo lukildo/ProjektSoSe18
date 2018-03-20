@@ -102,7 +102,6 @@
         Next i
 
         Dim size As String
-
         size = Math.Round(m_sizeX) & " x " & Math.Round(m_sizeY) & " mm"
         dataGrid.Rows.Add(m_name, size, m_count, m_status, "Einfügen", "Löschen")
     End Sub

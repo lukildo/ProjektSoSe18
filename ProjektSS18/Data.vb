@@ -70,14 +70,12 @@ Module Data
                                 counter = counter + 1
                                 Continue For
                             End If
-                            System.Console.WriteLine(shapeDrawing2.sizeX & " ... " & sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide)
-                            System.Console.WriteLine(shapeDrawing2.sizeY & " ... " & sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide)
 
+                            'Größe der Zeichnung mit Blattgröße vergleichen
                             If (shapeDrawing2.sizeX > sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide _
                                 Or shapeDrawing2.sizeY > sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide) _
                                 And (shapeDrawing2.sizeY > sheets.ActiveSheet.GetPaperWidth - 2 * distanceOutSide _
                                 Or shapeDrawing2.sizeX > sheets.ActiveSheet.GetPaperHeight - 2 * distanceOutSide) Then
-                                System.Console.WriteLine("Zu groß")
                                 counter = counter + 1
                             End If
                         Next shapeDrawing2
@@ -238,7 +236,6 @@ Module Data
         End If
 
         sel.Clear()
-
     End Sub
 
     Public Sub resetPlaced()
@@ -251,22 +248,20 @@ Module Data
 
         Dim i As Integer
         Dim freeRectCount As Integer = freeRects.Count
-        System.Console.WriteLine(freeRectCount)
-
         For i = 0 To freeRectCount - 1
             If freeRects.Item(i).intersects(usedRect) Then
                 Dim freeRect As Rect = freeRects.Item(i)
                 Dim newFreeRect As Rect
+
                 'Neues unten anfügen
                 If usedRect.originY > freeRect.originY Then
-                    System.Console.WriteLine("Unten anfügen")
                     newFreeRect = New Rect(freeRect)
                     newFreeRect.sizeY = usedRect.originY - freeRect.originY
                     freeRects.Add(newFreeRect)
                 End If
+
                 'Neues oben anfügen
                 If usedRect.originY + usedRect.sizeY < freeRect.originY + freeRect.sizeY Then
-                    System.Console.WriteLine("Oben anfügen")
                     newFreeRect = New Rect(freeRect)
                     newFreeRect.originY = usedRect.originY + usedRect.sizeY
                     newFreeRect.sizeY = freeRect.originY + freeRect.sizeY - usedRect.originY - usedRect.sizeY
@@ -275,7 +270,6 @@ Module Data
 
                 'Neues links anfügen
                 If usedRect.originX > freeRect.originX Then
-                    System.Console.WriteLine("Links anfügen")
                     newFreeRect = New Rect(freeRect)
                     newFreeRect.sizeX = usedRect.originX - freeRect.originX
                     freeRects.Add(newFreeRect)
@@ -283,7 +277,6 @@ Module Data
 
                 'Neues rechts anfügen
                 If usedRect.originX + usedRect.sizeX < freeRect.originX + freeRect.sizeX Then
-                    System.Console.WriteLine("Rechts anfügen")
                     newFreeRect = New Rect(freeRect)
                     newFreeRect.originX = usedRect.originX + usedRect.sizeX
                     newFreeRect.sizeX = freeRect.originX + freeRect.sizeX - usedRect.originX - usedRect.sizeX
@@ -303,23 +296,17 @@ Module Data
         For i = 0 To freeRects.Count - 1
             For j = i + 1 To freeRects.Count - 1
                 If j = freeRects.Count Then Exit For
-                System.Console.WriteLine(i & " und " & j)
                 If freeRects.Item(j).contains(freeRects.Item(i)) Then
                     freeRects.RemoveAt(i)
-                    System.Console.WriteLine("Entferne i")
                     i = i - 1
                     Exit For
                 End If
 
                 If freeRects.Item(i).contains(freeRects.Item(j)) Then
                     freeRects.RemoveAt(j)
-                    System.Console.WriteLine("Entferne j")
                     j = j - 1
                 End If
             Next j
         Next i
-
-
     End Sub
-
 End Module
