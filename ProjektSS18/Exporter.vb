@@ -82,7 +82,6 @@ Public Class Exporter
 
             If Not isPart Then
                 CATIA.Documents.Open(kvp.Key.Parent.FullName)
-                CATIA.StartWorkbench("SmdNewDesignWorkbench")
             End If
 
             partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
