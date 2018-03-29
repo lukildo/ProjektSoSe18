@@ -33,6 +33,7 @@ Partial Class Exporter
         Me.outputPathBox = New System.Windows.Forms.TextBox()
         Me.btnBack1 = New System.Windows.Forms.Button()
         Me.checkBoxSave = New System.Windows.Forms.CheckBox()
+        Me.Label2 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -41,7 +42,7 @@ Partial Class Exporter
         Me.Button1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Button1.Location = New System.Drawing.Point(12, 233)
+        Me.Button1.Location = New System.Drawing.Point(12, 192)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(205, 33)
         Me.Button1.TabIndex = 0
@@ -53,7 +54,7 @@ Partial Class Exporter
         '
         Me.progBar.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.progBar.Location = New System.Drawing.Point(12, 204)
+        Me.progBar.Location = New System.Drawing.Point(12, 163)
         Me.progBar.Name = "progBar"
         Me.progBar.Size = New System.Drawing.Size(315, 23)
         Me.progBar.TabIndex = 1
@@ -65,7 +66,7 @@ Partial Class Exporter
         Me.progressLbl.AutoSize = True
         Me.progressLbl.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.progressLbl.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
-        Me.progressLbl.Location = New System.Drawing.Point(15, 179)
+        Me.progressLbl.Location = New System.Drawing.Point(15, 138)
         Me.progressLbl.Name = "progressLbl"
         Me.progressLbl.Size = New System.Drawing.Size(61, 13)
         Me.progressLbl.TabIndex = 2
@@ -76,11 +77,11 @@ Partial Class Exporter
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!)
-        Me.Label1.Location = New System.Drawing.Point(2, 19)
+        Me.Label1.Location = New System.Drawing.Point(6, 11)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(334, 40)
+        Me.Label1.Size = New System.Drawing.Size(334, 20)
         Me.Label1.TabIndex = 3
-        Me.Label1.Text = "Sheetmetal Part oder Produkt in Catia öffnen. " & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Programm starten."
+        Me.Label1.Text = "Sheetmetal Part oder Produkt in Catia öffnen. "
         Me.Label1.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'samePath
@@ -90,16 +91,16 @@ Partial Class Exporter
         Me.samePath.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
         Me.samePath.Location = New System.Drawing.Point(6, 34)
         Me.samePath.Name = "samePath"
-        Me.samePath.Size = New System.Drawing.Size(84, 17)
+        Me.samePath.Size = New System.Drawing.Size(105, 17)
         Me.samePath.TabIndex = 5
         Me.samePath.TabStop = True
-        Me.samePath.Text = "Unverändert"
+        Me.samePath.Text = "Pfad beibehalten"
         Me.samePath.UseVisualStyleBackColor = True
         '
         'diffPath
         '
         Me.diffPath.AutoSize = True
-        Me.diffPath.Location = New System.Drawing.Point(106, 36)
+        Me.diffPath.Location = New System.Drawing.Point(114, 36)
         Me.diffPath.Name = "diffPath"
         Me.diffPath.Size = New System.Drawing.Size(14, 13)
         Me.diffPath.TabIndex = 6
@@ -113,7 +114,7 @@ Partial Class Exporter
         Me.GroupBox1.Controls.Add(Me.samePath)
         Me.GroupBox1.Controls.Add(Me.diffPath)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.GroupBox1.Location = New System.Drawing.Point(12, 70)
+        Me.GroupBox1.Location = New System.Drawing.Point(12, 35)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(315, 66)
         Me.GroupBox1.TabIndex = 7
@@ -125,10 +126,10 @@ Partial Class Exporter
         Me.outputPathBox.Cursor = System.Windows.Forms.Cursors.Hand
         Me.outputPathBox.Enabled = False
         Me.outputPathBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
-        Me.outputPathBox.Location = New System.Drawing.Point(126, 33)
+        Me.outputPathBox.Location = New System.Drawing.Point(134, 33)
         Me.outputPathBox.Name = "outputPathBox"
         Me.outputPathBox.ReadOnly = True
-        Me.outputPathBox.Size = New System.Drawing.Size(183, 20)
+        Me.outputPathBox.Size = New System.Drawing.Size(175, 20)
         Me.outputPathBox.TabIndex = 7
         '
         'btnBack1
@@ -136,7 +137,7 @@ Partial Class Exporter
         Me.btnBack1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnBack1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.btnBack1.Location = New System.Drawing.Point(223, 233)
+        Me.btnBack1.Location = New System.Drawing.Point(223, 192)
         Me.btnBack1.Name = "btnBack1"
         Me.btnBack1.Size = New System.Drawing.Size(104, 33)
         Me.btnBack1.TabIndex = 0
@@ -149,20 +150,32 @@ Partial Class Exporter
         Me.checkBoxSave.AutoSize = True
         Me.checkBoxSave.Checked = True
         Me.checkBoxSave.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.checkBoxSave.Location = New System.Drawing.Point(12, 143)
+        Me.checkBoxSave.Location = New System.Drawing.Point(15, 107)
         Me.checkBoxSave.Name = "checkBoxSave"
         Me.checkBoxSave.Size = New System.Drawing.Size(191, 17)
         Me.checkBoxSave.TabIndex = 8
         Me.checkBoxSave.Text = "Gleiche Parts mehrfach exportieren"
         Me.checkBoxSave.UseVisualStyleBackColor = True
         '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!)
+        Me.Label2.Location = New System.Drawing.Point(36, 236)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(260, 48)
+        Me.Label2.TabIndex = 3
+        Me.Label2.Text = "Keine Eingaben tätigen," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & " während das Programm läuft!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
+        Me.Label2.TextAlign = System.Drawing.ContentAlignment.TopCenter
+        '
         'Exporter
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(339, 276)
+        Me.ClientSize = New System.Drawing.Size(339, 296)
         Me.Controls.Add(Me.checkBoxSave)
         Me.Controls.Add(Me.GroupBox1)
+        Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.progressLbl)
         Me.Controls.Add(Me.progBar)
@@ -189,4 +202,5 @@ Partial Class Exporter
     Friend WithEvents outputPathBox As TextBox
     Friend WithEvents btnBack1 As Button
     Friend WithEvents checkBoxSave As CheckBox
+    Friend WithEvents Label2 As Label
 End Class
