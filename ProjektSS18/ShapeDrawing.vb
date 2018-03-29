@@ -1,4 +1,5 @@
-﻿Public Class ShapeDrawing
+﻿'ShapeDrawing Klasse enthält alle geladenen Daten einer DrawingView
+Public Class ShapeDrawing
 
     'Member Variablen
     Private m_name As String
@@ -10,12 +11,11 @@
     Private m_count As Integer
     Private m_placed As Integer
 
-    'Konstruktor
+    'Standardkonstruktor
     Public Sub New()
-
     End Sub
 
-    'Getter-Setter
+    'Eigenschaften
     Public Property name As String
         Get
             Return m_name
@@ -88,7 +88,7 @@
         End Set
     End Property
 
-    'aktuelle Daten in das übergebene DataGrid eintragen
+    'Neue Daten in die Tabelle eintragen
     Public Sub updateGrid(ByVal dataGrid As DataGridView)
         Dim i As Integer
 
@@ -101,6 +101,7 @@
             End If
         Next i
 
+        'Neue Reihe bei neuem Eintrag erstellen
         Dim size As String
         size = Math.Round(m_sizeX) & " x " & Math.Round(m_sizeY) & " mm"
         dataGrid.Rows.Add(m_name, size, m_count, m_status, "Einfügen", "Löschen")

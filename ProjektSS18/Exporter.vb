@@ -3,12 +3,11 @@ Imports Microsoft.VisualBasic.Interaction
 Imports System.Threading
 Imports System.IO
 
-
 Public Class Exporter
 
     Public progMax As Integer
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub Button1_Click() Handles Button1.Click
 
         Dim CATIA As INFITF.Application
         Dim sel As Selection
@@ -39,8 +38,9 @@ Public Class Exporter
 
         If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") _
             And Not CATIA.GetWorkbenchId.Equals("Assembly") Or CATIA.Documents.Count = 0 Then
-            'Fehlermeldung wenn es kein Sheetmetal Part ist
-            MessageBox.Show("Kein Sheetmetal Part oder Produkt geöffnet!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            'Fehlermeldung, wenn es kein passendes Dokument geöffnet ist
+            MessageBox.Show("Kein Sheetmetal Part oder Produkt geöffnet." & Environment.NewLine &
+                            "Sie müssen sich im Assembly Design oder Sheetmetal Design befinden", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             'UI aktivieren
             btnBack1.Enabled = True
             Button1.Enabled = True
@@ -50,7 +50,7 @@ Public Class Exporter
         'Part oder Produkt geöffnet
         isPart = CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Or CATIA.GetWorkbenchId.Equals("SheWorkshop")
 
-        CATIA.Interactive = False
+        'Alle Parts auswählen
         sel = CATIA.ActiveDocument.Selection
         sel.Clear()
         sel.Search("(CATPrtSearch.PartFeature),all")
@@ -58,21 +58,31 @@ Public Class Exporter
         For i = 1 To sel.Count
             myPart = sel.Item2(i).Value
 
-            'auf Sheetmetal prüfen
+            'Part auf Sheetmetal prüfen
             Try
                 Dim str As String = myPart.SheetMetalParameters.Name
             Catch ex As Exception
                 Continue For
             End Try
 
-            'doppelte Parts mit Anzahl speichern
+            'Doppelte Parts mit Anzahl speichern
             If checkBoxSave.Checked And savedParts.ContainsKey(myPart) Then
                 savedParts(myPart) += 1
             ElseIf Not savedParts.ContainsKey(myPart) Then
                 savedParts.Add(myPart, 1)
             End If
         Next i
+
         sel.Clear()
+
+        If savedParts.Count = 0 Then
+            'Fehlermeldung, wenn das Produkt keine Sheetmetal Parts enthält
+            MessageBox.Show("Das Produkt enthält keine Sheetmetal Parts", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            'UI aktivieren
+            btnBack1.Enabled = True
+            Button1.Enabled = True
+            Exit Sub
+        End If
 
         'Abschnitte der ProgressBar berechnen
         progMax = 4 * savedParts.Count
@@ -87,7 +97,7 @@ Public Class Exporter
             partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
             partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
 
-            'Output festlegen
+            'Ausgabepfad festlegen
             If diffPath.Checked Then
                 outputPath = outputPathBox.Text + "\" + partName + "_Laser.CATDrawing"
             Else
@@ -101,14 +111,15 @@ Public Class Exporter
             '##ProgressUpdate
             progUpdate(partName + ".dxf exportieren")
 
-            'Catia in den Vordergrund
+            'Catia in den Vordergrund und Command ausführen
             AppActivate("CATIA")
-            'Command ausführen, noch unschön
-            CATIA.StartCommand("Als DXF sichern")
-            'jeweils auf das öffnen der Fenster warten
+            CATIA.StartCommand("SmDxf")
+
+            'Jeweils auf das öffnen der Fenster warten
             Thread.Sleep(500)
             SendKeys.Send("{ENTER}")
             Thread.Sleep(500)
+
             'Verzeichnis auf Desktop wechseln und vorher Verzeichnis ändern
             SendKeys.Send("{%}appdata{%}{ENTER}shell:Desktop{ENTER}{ENTER}")
 
@@ -122,7 +133,6 @@ Public Class Exporter
                     btnBack1.Enabled = True
                     Button1.Enabled = True
 
-                    CATIA.Interactive = True
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
                 End If
@@ -131,15 +141,14 @@ Public Class Exporter
             '##ProgressUpdate
             progUpdate(partName + ".dxf öffnen")
 
-            'Exportierte Datei öffnen
+            'Exportierte Datei öffnen und DXF danach löschen
             CATIA.Documents.Open(fileDxf)
-            'DXF wird nicht mehr gebraucht
             File.Delete(fileDxf)
 
             '##ProgressUpdate
             progUpdate(partName + ".dxf anpassen und speichern")
 
-            'alles selektieren und Linienart und Linienbreite anpassen
+            'Alles selektieren und Linienart und Linienbreite anpassen
             sel = CATIA.ActiveDocument.Selection
             sel.Clear()
             sel.Search("Type=*,all")
@@ -156,9 +165,19 @@ Public Class Exporter
 
             'Datei überschreiben und speichern
             If File.Exists(outputPath) Then File.Delete(outputPath)
-            CATIA.ActiveDocument.SaveAs(outputPath)
+            Try
+                CATIA.ActiveDocument.SaveAs(outputPath)
+            Catch ex As Exception
+                'UI aktivieren
+                btnBack1.Enabled = True
+                Button1.Enabled = True
 
-            'Doppelte Teile einzeln speichern
+                'Fehlermeldung innerhalb von Catia
+                Exit Sub
+
+            End Try
+
+            'Doppelte Parts einzeln speichern
             If kvp.Value > 1 Then
                 Dim outputPathNew As String
                 For i = 2 To kvp.Value
@@ -167,51 +186,54 @@ Public Class Exporter
                     File.Copy(outputPath, outputPathNew)
                 Next i
             End If
+
             'Zeichnung und Part schließen
             CATIA.ActiveDocument.Close()
             If Not isPart Then
                 CATIA.ActiveDocument.Close()
             End If
+
             '##ProgressUpdate
-            progUpdate(partName + "_Laser.CATDrawing fertig")
+            progUpdate(partName + "_Laser.CATDrawing wurde erstellt")
         Next kvp
 
+        'Abschließende Ausgabenachricht und ProgressBar auf 100%
         If savedParts.Count = 1 Then
-            progUpdate(partName + "_Laser.CATDrawing fertig", 100)
+            progUpdate(partName + "_Laser.CATDrawing wurde erstellt", 100)
         Else
             progUpdate("Alle " & savedParts.Count & " (verschiedenen) Parts wurden exportiert!", 100)
         End If
+
         'UI aktivieren
-        CATIA.Interactive = True
         btnBack1.Enabled = True
         Button1.Enabled = True
     End Sub
 
-    'Output mit Dialog festlegen
-    Private Sub outputPathBox_Click(sender As Object, e As EventArgs) Handles outputPathBox.Click
-
+    'Ausgabepfad mit Dialog festlegen
+    Private Sub outputPathBox_Click() Handles outputPathBox.Click
         Dim dialog As New FolderBrowserDialog()
 
+        'Pfadauswahl mit DialogBox
         If dialog.ShowDialog = DialogResult.OK Then
             outputPathBox.Text = dialog.SelectedPath
         End If
-
     End Sub
 
-    'Standard Output als Desktop festlegen
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    'Standard Ausgabepfad als Desktop festlegen
+    Private Sub Form1_Load() Handles MyBase.Load
         outputPathBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
         progressLbl.Text = ""
     End Sub
 
     'Textbox mit den Radiobuttons aktivieren
-    Private Sub diffPath_CheckedChanged(sender As Object, e As EventArgs) Handles diffPath.CheckedChanged
+    Private Sub diffPath_CheckedChanged() Handles diffPath.CheckedChanged
         If diffPath.Checked Then
             outputPathBox.Enabled = True
         Else
             outputPathBox.Enabled = False
         End If
     End Sub
+
     'Progressbar aktualisieren
     Private Sub progUpdate(ByVal msg As String, Optional ByVal times As Integer = 1)
         Dim progValue As Integer
@@ -222,11 +244,13 @@ Public Class Exporter
         If progValue > 100 Then progValue = 100
         progBar.Value = progValue
     End Sub
-    'Zwischen den Forms wechseln
+
+    'Zwischen den Fenstern wechseln
     Private Sub btnBack1_Click(sender As Object, e As EventArgs) Handles btnBack1.Click
         Main.Show()
         Me.Close()
     End Sub
+
     'Programm schließen, wenn auf das x gedrückt wird
     Private Sub Exporter_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If Not Main.Visible Then System.Windows.Forms.Application.Exit()
