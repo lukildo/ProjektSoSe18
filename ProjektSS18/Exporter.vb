@@ -120,7 +120,7 @@ Public Class Exporter
             timeElapsed = 0
             While FindWindow(Nothing, "DXF-Datei auswählen").Equals(IntPtr.Zero)
                 Thread.Sleep(30)
-                timeElapsed = timeElapsed + 1
+                timeElapsed += 1
                 If timeElapsed > 100 Then
                     'UI aktivieren
                     btnBack1.Enabled = True
@@ -130,19 +130,25 @@ Public Class Exporter
                     Exit Sub
                 End If
             End While
-            System.Console.WriteLine("Erstes Fenster offen")
             window = FindWindow(Nothing, "DXF-Datei auswählen")
 
-            'OK drücken
+            'Save As Button erkennen; mit Timeout
+            timeElapsed = 0
+            While GetDlgItem(window, 0) = 0
+                Thread.Sleep(10)
+                timeElapsed += 1
+                If timeElapsed > 100 Then Exit While
+            End While
+
             okButton = GetDlgItem(window, 0)
-            System.Console.WriteLine(okButton)
+            'Button drücken
             SendMessage(okButton, BM_CLICK, IntPtr.Zero, IntPtr.Zero)
 
             'Warten bis das zweite Fenster geöffnet ist; mit Timeout
             timeElapsed = 0
             While FindWindow(Nothing, "Sichern unter").Equals(IntPtr.Zero)
                 Thread.Sleep(30)
-                timeElapsed = timeElapsed + 1
+                timeElapsed += 1
                 If timeElapsed > 100 Then
                     'UI aktivieren
                     btnBack1.Enabled = True
@@ -152,7 +158,6 @@ Public Class Exporter
                     Exit Sub
                 End If
             End While
-            System.Console.WriteLine("Zweites offen")
 
             'Pfad ändern und speichern
             window = FindWindow(Nothing, "Sichern unter")
@@ -163,10 +168,10 @@ Public Class Exporter
             'Überprüfen, ob die DXF richtig gespeichert wurde
             timeElapsed = 0
             While Not File.Exists(fileDxf)
-                Thread.Sleep(500)
-                timeElapsed = timeElapsed + 1
+                Thread.Sleep(30)
+                timeElapsed += 1
                 'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
-                If timeElapsed > 5 Then
+                If timeElapsed > 100 Then
                     'UI aktivieren
                     btnBack1.Enabled = True
                     Button1.Enabled = True
