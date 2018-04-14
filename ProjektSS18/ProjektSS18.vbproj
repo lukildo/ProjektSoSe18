@@ -114,6 +114,7 @@
     </Compile>
     <Compile Include="Rect.vb" />
     <Compile Include="ShapeDrawing.vb" />
+    <Compile Include="Win32API.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Exporter.resx">

@@ -11,6 +11,8 @@ Public Class Exporter
 
         Dim CATIA As INFITF.Application
         Dim sel As Selection
+        Dim window As IntPtr
+        Dim okButton As IntPtr
 
         Dim outputPath As String
         Dim partName As String
@@ -111,18 +113,54 @@ Public Class Exporter
             '##ProgressUpdate
             progUpdate(partName + ".dxf exportieren")
 
-            'Catia in den Vordergrund und Command ausführen
-            AppActivate("CATIA")
+            'Exportieren über StartCommand
             CATIA.StartCommand("SmDxf")
 
-            'Jeweils auf das öffnen der Fenster warten
-            Thread.Sleep(500)
-            SendKeys.Send("{ENTER}")
-            Thread.Sleep(500)
+            'Warten bis das erste Fenster geöffnet ist; mit Timeout
+            timeElapsed = 0
+            While FindWindow(Nothing, "DXF-Datei auswählen").Equals(IntPtr.Zero)
+                Thread.Sleep(30)
+                timeElapsed = timeElapsed + 1
+                If timeElapsed > 100 Then
+                    'UI aktivieren
+                    btnBack1.Enabled = True
+                    Button1.Enabled = True
 
-            'Verzeichnis auf Desktop wechseln und vorher Verzeichnis ändern
-            SendKeys.Send("{%}appdata{%}{ENTER}shell:Desktop{ENTER}{ENTER}")
+                    MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+            End While
+            System.Console.WriteLine("Erstes Fenster offen")
+            window = FindWindow(Nothing, "DXF-Datei auswählen")
 
+            'OK drücken
+            okButton = GetDlgItem(window, 0)
+            System.Console.WriteLine(okButton)
+            SendMessage(okButton, BM_CLICK, IntPtr.Zero, IntPtr.Zero)
+
+            'Warten bis das zweite Fenster geöffnet ist; mit Timeout
+            timeElapsed = 0
+            While FindWindow(Nothing, "Sichern unter").Equals(IntPtr.Zero)
+                Thread.Sleep(30)
+                timeElapsed = timeElapsed + 1
+                If timeElapsed > 100 Then
+                    'UI aktivieren
+                    btnBack1.Enabled = True
+                    Button1.Enabled = True
+
+                    MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Exit Sub
+                End If
+            End While
+            System.Console.WriteLine("Zweites offen")
+
+            'Pfad ändern und speichern
+            window = FindWindow(Nothing, "Sichern unter")
+            SetForegroundWindow(window)
+            SendKeys.Send("{%}appdata{%}{ENTER}shell:desktop{ENTER}{ENTER}")
+            window = FindWindow(Nothing, "ShapeFormat")
+
+            'Überprüfen, ob die DXF richtig gespeichert wurde
             timeElapsed = 0
             While Not File.Exists(fileDxf)
                 Thread.Sleep(500)
@@ -141,6 +179,7 @@ Public Class Exporter
             '##ProgressUpdate
             progUpdate(partName + ".dxf öffnen")
 
+            SetForegroundWindow(window)
             'Exportierte Datei öffnen und DXF danach löschen
             CATIA.Documents.Open(fileDxf)
             File.Delete(fileDxf)
