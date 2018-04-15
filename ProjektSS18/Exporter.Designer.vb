@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Exporter
     Inherits System.Windows.Forms.Form
 
     'Das Formular überschreibt den Löschvorgang, um die Komponentenliste zu bereinigen.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class Exporter
     'Hinweis: Die folgende Prozedur ist für den Windows Form-Designer erforderlich.
     'Das Bearbeiten ist mit dem Windows Form-Designer möglich.  
     'Das Bearbeiten mit dem Code-Editor ist nicht möglich.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Exporter))
         Me.Button1 = New System.Windows.Forms.Button()
@@ -33,7 +33,6 @@ Partial Class Exporter
         Me.outputPathBox = New System.Windows.Forms.TextBox()
         Me.btnBack1 = New System.Windows.Forms.Button()
         Me.checkBoxSave = New System.Windows.Forms.CheckBox()
-        Me.Label2 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -42,7 +41,7 @@ Partial Class Exporter
         Me.Button1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.Button1.Location = New System.Drawing.Point(12, 192)
+        Me.Button1.Location = New System.Drawing.Point(12, 227)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(205, 33)
         Me.Button1.TabIndex = 0
@@ -54,7 +53,7 @@ Partial Class Exporter
         '
         Me.progBar.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.progBar.Location = New System.Drawing.Point(12, 163)
+        Me.progBar.Location = New System.Drawing.Point(12, 198)
         Me.progBar.Name = "progBar"
         Me.progBar.Size = New System.Drawing.Size(315, 23)
         Me.progBar.TabIndex = 1
@@ -66,7 +65,7 @@ Partial Class Exporter
         Me.progressLbl.AutoSize = True
         Me.progressLbl.BackColor = System.Drawing.SystemColors.ButtonFace
         Me.progressLbl.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!)
-        Me.progressLbl.Location = New System.Drawing.Point(15, 138)
+        Me.progressLbl.Location = New System.Drawing.Point(15, 173)
         Me.progressLbl.Name = "progressLbl"
         Me.progressLbl.Size = New System.Drawing.Size(61, 13)
         Me.progressLbl.TabIndex = 2
@@ -114,7 +113,7 @@ Partial Class Exporter
         Me.GroupBox1.Controls.Add(Me.samePath)
         Me.GroupBox1.Controls.Add(Me.diffPath)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.GroupBox1.Location = New System.Drawing.Point(12, 35)
+        Me.GroupBox1.Location = New System.Drawing.Point(12, 42)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(315, 66)
         Me.GroupBox1.TabIndex = 7
@@ -137,7 +136,7 @@ Partial Class Exporter
         Me.btnBack1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnBack1.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.btnBack1.Location = New System.Drawing.Point(223, 192)
+        Me.btnBack1.Location = New System.Drawing.Point(223, 227)
         Me.btnBack1.Name = "btnBack1"
         Me.btnBack1.Size = New System.Drawing.Size(104, 33)
         Me.btnBack1.TabIndex = 0
@@ -150,32 +149,20 @@ Partial Class Exporter
         Me.checkBoxSave.AutoSize = True
         Me.checkBoxSave.Checked = True
         Me.checkBoxSave.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.checkBoxSave.Location = New System.Drawing.Point(15, 107)
+        Me.checkBoxSave.Location = New System.Drawing.Point(15, 128)
         Me.checkBoxSave.Name = "checkBoxSave"
         Me.checkBoxSave.Size = New System.Drawing.Size(191, 17)
         Me.checkBoxSave.TabIndex = 8
         Me.checkBoxSave.Text = "Gleiche Parts mehrfach exportieren"
         Me.checkBoxSave.UseVisualStyleBackColor = True
         '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!)
-        Me.Label2.Location = New System.Drawing.Point(36, 236)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(260, 48)
-        Me.Label2.TabIndex = 3
-        Me.Label2.Text = "Keine Eingaben tätigen," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & " während das Programm läuft!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
-        Me.Label2.TextAlign = System.Drawing.ContentAlignment.TopCenter
-        '
         'Exporter
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(339, 296)
+        Me.ClientSize = New System.Drawing.Size(339, 279)
         Me.Controls.Add(Me.checkBoxSave)
         Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.progressLbl)
         Me.Controls.Add(Me.progBar)
@@ -202,5 +189,4 @@ Partial Class Exporter
     Friend WithEvents outputPathBox As TextBox
     Friend WithEvents btnBack1 As Button
     Friend WithEvents checkBoxSave As CheckBox
-    Friend WithEvents Label2 As Label
 End Class

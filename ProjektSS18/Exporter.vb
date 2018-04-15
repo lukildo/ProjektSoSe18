@@ -1,5 +1,4 @@
 ﻿Imports System.Runtime.InteropServices
-Imports Microsoft.VisualBasic.Interaction
 Imports System.Threading
 Imports System.IO
 
@@ -37,6 +36,7 @@ Public Class Exporter
             MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End Try
+        CATIA.DisplayFileAlerts = False
 
         If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") _
             And Not CATIA.GetWorkbenchId.Equals("Assembly") Or CATIA.Documents.Count = 0 Then
