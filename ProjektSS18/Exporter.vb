@@ -162,7 +162,8 @@ Public Class Exporter
             'Pfad ändern und speichern
             window = FindWindow(Nothing, "Sichern unter")
             SetForegroundWindow(window)
-            SendKeys.Send("{%}appdata{%}{ENTER}shell:desktop{ENTER}{ENTER}")
+            Thread.Sleep(50)
+            SendKeys.Send(fileDxf & "{ENTER}")
             window = FindWindow(Nothing, "ShapeFormat")
 
             'Überprüfen, ob die DXF richtig gespeichert wurde
