@@ -50,7 +50,7 @@ Public Class Exporter
         End If
 
         'Part oder Produkt geöffnet
-        isPart = CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") Or CATIA.GetWorkbenchId.Equals("SheWorkshop")
+        isPart = Not CATIA.ActiveDocument.Name.Contains(".CATProduct")
 
         'Alle Parts auswählen
         sel = CATIA.ActiveDocument.Selection
