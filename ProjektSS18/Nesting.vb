@@ -8,9 +8,7 @@ Public Class Nesting
         'Startwerte setzen und gespeicherte Daten zurücksetzen
         shapeDrawings.Clear()
         dataGrid = dataGridView
-        lblError.Visible = False
-        comboMaterial.SelectedIndex = 0
-        comboSize.SelectedIndex = 0
+        comboSize.SelectedIndex = 7
         otherTrue = True
     End Sub
 
@@ -35,93 +33,87 @@ Public Class Nesting
         End If
     End Sub
 
-    Private Sub comboMaterial_SelectedIndexChanged() Handles comboMaterial.SelectedIndexChanged
-        'Auswahl dem Material anpassen
-        comboSize.Enabled = True
+    Private Sub comboSize_SelectedIndexChanged() Handles comboSize.SelectedIndexChanged
+        'Vorgegebene Größen als Werte anzeigen
         txtBoxHeight.Enabled = False
         txtBoxWidth.Enabled = False
-
-        If comboMaterial.SelectedItem = "Fotokarton" Then
-            comboSize.Items.Clear()
-            comboSize.Items.AddRange({"DIN A1", "DIN A3"})
-        ElseIf comboMaterial.SelectedItem = "Holz" Then
-            comboSize.Items.Clear()
-            comboSize.Items.AddRange({"DIN A0", "DIN A1"})
-        ElseIf comboMaterial.SelectedItem = "Plexiglas" Then
-            comboSize.Items.Clear()
-            comboSize.Items.AddRange({"DIN A1"})
-        ElseIf comboMaterial.SelectedItem = "Benutzerdefiniert" Then
-            comboSize.Enabled = False
-            comboSize.Items.Clear()
-            comboSize.Items.AddRange({"Benutzerdefiniert"})
+        If comboSize.SelectedItem.contains("DIN A0") Then
+            txtBoxHeight.Text = 841
+            txtBoxWidth.Text = 1189
+        ElseIf comboSize.SelectedItem.contains("DIN A1") Then
+            txtBoxHeight.Text = 594
+            txtBoxWidth.Text = 841
+        ElseIf comboSize.SelectedItem.contains("DIN A2") Then
+            txtBoxHeight.Text = 420
+            txtBoxWidth.Text = 594
+        ElseIf comboSize.SelectedItem.contains("DIN A3") Then
+            txtBoxHeight.Text = 297
+            txtBoxWidth.Text = 420
+        ElseIf comboSize.SelectedItem.contains("DIN A4") Then
+            txtBoxHeight.Text = 210
+            txtBoxWidth.Text = 297
+        ElseIf comboSize.SelectedItem.contains("Benutzerdefiniert") Then
             txtBoxHeight.Enabled = True
             txtBoxWidth.Enabled = True
         End If
 
-        'Standardmäßig wird immer die erste Option ausgewählt
-        comboSize.SelectedIndex = 0
-    End Sub
-
-    Private Sub comboSize_SelectedIndexChanged() Handles comboSize.SelectedIndexChanged
-        'Vorgegebene Größen als Werte anzeigen
-        If comboSize.SelectedItem = "DIN A0" Then
-            txtBoxHeight.Text = 841
-            txtBoxWidth.Text = 1189
-        ElseIf comboSize.SelectedItem = "DIN A1" Then
-            txtBoxHeight.Text = 594
-            txtBoxWidth.Text = 841
-        ElseIf comboSize.SelectedItem = "DIN A2" Then
-            txtBoxHeight.Text = 420
-            txtBoxWidth.Text = 594
-        ElseIf comboSize.SelectedItem = "DIN A3" Then
-            txtBoxHeight.Text = 297
-            txtBoxWidth.Text = 420
-        ElseIf comboSize.SelectedItem = "DIN A4" Then
-            txtBoxHeight.Text = 210
-            txtBoxWidth.Text = 297
+        'Querformat umdrehen
+        If comboSize.SelectedItem.contains("quer") Then
+            Dim changer As Integer
+            changer = txtBoxHeight.Text
+            txtBoxHeight.Text = txtBoxWidth.Text
+            txtBoxWidth.Text = changer
         End If
     End Sub
 
-    Private Sub txtBoxHeight_TextChanged() Handles txtBoxHeight.TextChanged
+    Private Sub txtBoxHeight_Leave() Handles txtBoxHeight.Leave
         Dim value As Integer
 
         'Benutzereingaben prüfen
         If Int32.TryParse(txtBoxHeight.Text, value) Then
-            If value >= 10 And value <= 1500 Then
+            If value >= 10 And value <= 1250 Then
                 If otherTrue Then
                     btnNewSheet.Enabled = True
-                    lblError.Visible = False
+                    btnNewSheet.Font = New Font(btnNewSheet.Font, FontStyle.Regular)
+                    btnNewSheet.BackColor = Color.FromName("Control")
+                    btnNewSheet.Text = "Neues Blatt hinzufügen"
                 Else
                     'Andere Textbox überprüfen vor Freigabe
                     otherTrue = True
-                    Call txtBoxWidth_TextChanged()
+                    Call txtBoxWidth_Leave()
                 End If
             Else
                 otherTrue = False
                 btnNewSheet.Enabled = False
-                lblError.Visible = True
+                btnNewSheet.Font = New Font(btnNewSheet.Font, FontStyle.Bold)
+                btnNewSheet.BackColor = Color.White
+                btnNewSheet.Text = "Max. Höhe 1250mm"
             End If
         End If
     End Sub
 
-    Private Sub txtBoxWidth_TextChanged() Handles txtBoxWidth.TextChanged
+    Private Sub txtBoxWidth_Leave() Handles txtBoxWidth.Leave
         Dim value As Integer
 
         'Benutzereingaben prüfen
         If Int32.TryParse(txtBoxWidth.Text, value) Then
-            If value >= 10 And value <= 1500 Then
+            If value >= 10 And value <= 700 Then
                 If otherTrue Then
                     btnNewSheet.Enabled = True
-                    lblError.Visible = False
+                    btnNewSheet.Font = New Font(btnNewSheet.Font, FontStyle.Regular)
+                    btnNewSheet.BackColor = Color.FromName("Control")
+                    btnNewSheet.Text = "Neues Blatt hinzufügen"
                 Else
                     'Andere Textbox überprüfen vor Freigabe
                     otherTrue = True
-                    Call txtBoxHeight_TextChanged()
+                    Call txtBoxHeight_Leave()
                 End If
             Else
                 otherTrue = False
                 btnNewSheet.Enabled = False
-                lblError.Visible = True
+                btnNewSheet.Font = New Font(btnNewSheet.Font, FontStyle.Bold)
+                btnNewSheet.BackColor = Color.White
+                btnNewSheet.Text = "Max. Breite 700mm"
             End If
         End If
     End Sub
@@ -149,8 +141,9 @@ Public Class Nesting
             Exit Sub
         End Try
 
-        sheets.Add("Blatt " & sheets.Count + 1 & " - " & comboSize.Text & " - " & comboMaterial.Text)
+        sheets.Add("Blatt " & sheets.Count + 1 & " - " & comboSize.Text)
         setSheetSize(sheets.ActiveSheet)
+        CATIA.ActiveWindow.ActiveViewer.Reframe()
     End Sub
 
     Private Sub btnSelect_Click() Handles btnSelect.Click
@@ -184,7 +177,7 @@ Public Class Nesting
             If dataGridView.Rows.Count = 0 Then
                 CATIA.Documents.Add("Drawing")
                 sheets = CATIA.ActiveDocument.Sheets
-                sheets.Add("Blatt 1 - " & comboSize.Text & " - " & comboMaterial.Text)
+                sheets.Add("Blatt 1 - " & comboSize.Text)
                 sheets.Remove(1)
                 setSheetSize(sheets.ActiveSheet)
                 CATIA.ActiveWindow.ActiveViewer.Reframe()
@@ -457,6 +450,12 @@ Public Class Nesting
             sheet.SetPaperHeight(txtBoxHeight.Text)
             sheet.SetPaperWidth(txtBoxWidth.Text)
         End If
+
+        If comboSize.SelectedItem.contains("quer") And Not comboSize.SelectedItem.contains("Benutzerdefiniert") Then
+            sheet.Orientation = DRAFTINGITF.CatPaperOrientation.catPaperLandscape
+        Else
+            sheet.Orientation = DRAFTINGITF.CatPaperOrientation.catPaperPortrait
+        End If
     End Sub
 
     Private Sub txtBoxDistanceOutside_Leave() Handles txtBoxDistanceOutside.Leave
@@ -544,5 +543,23 @@ Public Class Nesting
         For Each shapeDrawing1 In removeList
             shapeDrawings.Remove(shapeDrawing1)
         Next shapeDrawing1
+    End Sub
+
+    'Mit Enter Textfeld bestätigen
+    Private Sub txtBoxHeight_KeyDown(sender As Object, e As KeyEventArgs) Handles txtBoxHeight.KeyDown
+        If e.KeyData = Keys.Enter Then
+            e.SuppressKeyPress = True
+            btnNewSheet.Select()
+            Call txtBoxHeight_Leave()
+        End If
+    End Sub
+
+    'Mit Enter Textfeld bestätigen
+    Private Sub txtBoxWidth_KeyDown(sender As Object, e As KeyEventArgs) Handles txtBoxWidth.KeyDown
+        If e.KeyData = Keys.Enter Then
+            e.SuppressKeyPress = True
+            btnNewSheet.Select()
+            Call txtBoxWidth_Leave()
+        End If
     End Sub
 End Class

@@ -113,7 +113,7 @@ Partial Class Exporter
         Me.GroupBox1.Controls.Add(Me.samePath)
         Me.GroupBox1.Controls.Add(Me.diffPath)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.GroupBox1.Location = New System.Drawing.Point(12, 42)
+        Me.GroupBox1.Location = New System.Drawing.Point(12, 50)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(315, 66)
         Me.GroupBox1.TabIndex = 7

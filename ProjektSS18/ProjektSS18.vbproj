@@ -95,6 +95,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationEvents.vb" />
     <Compile Include="Data.vb" />
     <Compile Include="Exporter.vb">
       <SubType>Form</SubType>
@@ -230,7 +231,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Icon1.ico" />
     <Content Include="ShapeFormat.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -36,7 +36,6 @@ Public Class Exporter
             MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End Try
-        CATIA.DisplayFileAlerts = False
 
         If Not CATIA.GetWorkbenchId.Equals("SmdNewDesignWorkbench") And Not CATIA.GetWorkbenchId.Equals("SheWorkshop") _
             And Not CATIA.GetWorkbenchId.Equals("Assembly") Or CATIA.Documents.Count = 0 Then
@@ -92,8 +91,17 @@ Public Class Exporter
         'Liste durchgehen und exportieren
         For Each kvp As KeyValuePair(Of Part, Integer) In savedParts
 
+
             If Not isPart Then
-                CATIA.Documents.Open(kvp.Key.Parent.FullName)
+                Try
+                    CATIA.Documents.Open(kvp.Key.Parent.FullName)
+                Catch ex As Exception
+                    MessageBox.Show("Fehler beim Öffnen der Datei", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    'UI aktivieren
+                    btnBack1.Enabled = True
+                    Button1.Enabled = True
+                    Exit Sub
+                End Try
             End If
 
             partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
@@ -139,7 +147,7 @@ Public Class Exporter
                 timeElapsed += 1
                 If timeElapsed > 100 Then Exit While
             End While
-
+            checkBoxSave.Text = timeElapsed
             okButton = GetDlgItem(window, 0)
             'Button drücken
             SendMessage(okButton, BM_CLICK, IntPtr.Zero, IntPtr.Zero)
@@ -163,11 +171,12 @@ Public Class Exporter
             window = FindWindow(Nothing, "Sichern unter")
             SetForegroundWindow(window)
             Thread.Sleep(60)
-
+            checkBoxSave.Text = checkBoxSave.Text & "-" & timeElapsed
             'Text in Zwischenablage kopieren
             Clipboard.Clear()
             Clipboard.SetText(fileDxf)
-            SendKeys.SendWait("^v")
+            SendKeys.Send("^v")
+            Thread.Sleep(100)
             SendKeys.Send("{ENTER}")
             Clipboard.Clear()
             window = FindWindow(Nothing, "ShapeFormat")
@@ -182,6 +191,7 @@ Public Class Exporter
                     'UI aktivieren
                     btnBack1.Enabled = True
                     Button1.Enabled = True
+                    SetForegroundWindow(window)
 
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Exit Sub
