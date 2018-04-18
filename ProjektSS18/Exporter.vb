@@ -162,8 +162,14 @@ Public Class Exporter
             'Pfad ändern und speichern
             window = FindWindow(Nothing, "Sichern unter")
             SetForegroundWindow(window)
-            Thread.Sleep(50)
-            SendKeys.Send(fileDxf & "{ENTER}")
+            Thread.Sleep(60)
+
+            'Text in Zwischenablage kopieren
+            Clipboard.Clear()
+            Clipboard.SetText(fileDxf)
+            SendKeys.SendWait("^v")
+            SendKeys.Send("{ENTER}")
+            Clipboard.Clear()
             window = FindWindow(Nothing, "ShapeFormat")
 
             'Überprüfen, ob die DXF richtig gespeichert wurde
