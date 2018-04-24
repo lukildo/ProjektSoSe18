@@ -126,7 +126,7 @@ Public Class Exporter
                 Thread.Sleep(30)
                 timeElapsed += 1
 
-                If timeElapsed > 100 Then
+                If timeElapsed > 70 Then
                     'UI aktivieren
                     btnBack1.Enabled = True
                     Button1.Enabled = True
@@ -154,6 +154,28 @@ Public Class Exporter
             While FindWindow(Nothing, "Sichern unter").Equals(IntPtr.Zero)
                 Thread.Sleep(30)
                 timeElapsed += 1
+                If timeElapsed > 70 Then
+                    'UI aktivieren
+                    btnBack1.Enabled = True
+                    Button1.Enabled = True
+
+                    MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    Me.Activate()
+                    Exit Sub
+                End If
+            End While
+            Clipboard.Clear()
+            Clipboard.SetText(fileDxf)
+            window = FindWindow(Nothing, "ShapeFormat")
+
+            timeElapsed = 0
+            While Not FindWindow(Nothing, "Sichern unter") = 0
+                Thread.Sleep(20)
+                timeElapsed += 1
+                SetForegroundWindow(FindWindow(Nothing, "Sichern unter"))
+                Console.WriteLine(timeElapsed & ". Durchgang")
+                SendKeys.SendWait("^v{Enter}")
+
                 If timeElapsed > 100 Then
                     'UI aktivieren
                     btnBack1.Enabled = True
@@ -165,16 +187,6 @@ Public Class Exporter
                 End If
             End While
 
-            'Pfad ändern und speichern
-            window = FindWindow(Nothing, "Sichern unter")
-            SetForegroundWindow(window)
-
-            'Text in Zwischenablage kopieren
-            Clipboard.Clear()
-            Clipboard.SetText(fileDxf)
-            SendKeys.Send("^v")
-            Thread.Sleep(200)
-            SendKeys.Send("{ENTER}")
             Clipboard.Clear()
             window = FindWindow(Nothing, "ShapeFormat")
 
