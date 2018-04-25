@@ -166,20 +166,20 @@ Public Class Exporter
             End While
             Clipboard.Clear()
             Clipboard.SetText(fileDxf)
-            window = FindWindow(Nothing, "ShapeFormat")
 
+            CATIA.Interactive = False
             timeElapsed = 0
             While Not FindWindow(Nothing, "Sichern unter") = 0
-                Thread.Sleep(20)
                 timeElapsed += 1
                 SetForegroundWindow(FindWindow(Nothing, "Sichern unter"))
-                Console.WriteLine(timeElapsed & ". Durchgang")
                 SendKeys.SendWait("^v{Enter}")
+                Thread.Sleep(20)
 
                 If timeElapsed > 100 Then
                     'UI aktivieren
                     btnBack1.Enabled = True
                     Button1.Enabled = True
+                    CATIA.Interactive = True
 
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Me.Activate()
@@ -200,6 +200,7 @@ Public Class Exporter
                     'UI aktivieren
                     btnBack1.Enabled = True
                     Button1.Enabled = True
+                    CATIA.Interactive = True
 
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Me.Activate()
@@ -213,6 +214,7 @@ Public Class Exporter
             SetForegroundWindow(window)
             'Exportierte Datei öffnen und DXF danach löschen
             CATIA.Documents.Open(fileDxf)
+            CATIA.Interactive = True
             File.Delete(fileDxf)
 
             '##ProgressUpdate
