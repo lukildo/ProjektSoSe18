@@ -148,7 +148,7 @@ Public Class Exporter
             okButton = GetDlgItem(window, 0)
             'Button drücken
             SendMessage(okButton, BM_CLICK, IntPtr.Zero, IntPtr.Zero)
-
+            CATIA.Interactive = False
             'Warten bis das zweite Fenster geöffnet ist; mit Timeout
             timeElapsed = 0
             While FindWindow(Nothing, "Sichern unter").Equals(IntPtr.Zero)
@@ -164,16 +164,18 @@ Public Class Exporter
                     Exit Sub
                 End If
             End While
+
+            'Pfad in der Zwischenablage speichern
             Clipboard.Clear()
             Clipboard.SetText(fileDxf)
 
-            CATIA.Interactive = False
+            'Pfad solange eingeben, bis sich das Fenster geschlossen hat
             timeElapsed = 0
             While Not FindWindow(Nothing, "Sichern unter") = 0
                 timeElapsed += 1
                 SetForegroundWindow(FindWindow(Nothing, "Sichern unter"))
                 SendKeys.SendWait("^v{Enter}")
-                Thread.Sleep(20)
+                Thread.Sleep(30)
 
                 If timeElapsed > 100 Then
                     'UI aktivieren
@@ -186,9 +188,7 @@ Public Class Exporter
                     Exit Sub
                 End If
             End While
-
             Clipboard.Clear()
-            window = FindWindow(Nothing, "ShapeFormat")
 
             'Überprüfen, ob die DXF richtig gespeichert wurde
             timeElapsed = 0
@@ -211,10 +211,11 @@ Public Class Exporter
             '##ProgressUpdate
             progUpdate(partName + ".dxf öffnen")
 
-            SetForegroundWindow(window)
+            SetForegroundWindow(FindWindow(Nothing, "ShapeFormat"))
             'Exportierte Datei öffnen und DXF danach löschen
-            CATIA.Documents.Open(fileDxf)
             CATIA.Interactive = True
+            CATIA.Documents.Open(fileDxf)
+
             File.Delete(fileDxf)
 
             '##ProgressUpdate

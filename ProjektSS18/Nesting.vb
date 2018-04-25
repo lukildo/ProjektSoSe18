@@ -8,7 +8,7 @@ Public Class Nesting
         'Startwerte setzen und gespeicherte Daten zurücksetzen
         shapeDrawings.Clear()
         dataGrid = dataGridView
-        comboSize.SelectedIndex = 7
+        comboSize.SelectedIndex = 3
         otherTrue = True
     End Sub
 
@@ -435,15 +435,15 @@ Public Class Nesting
 
     Public Sub setSheetSize(ByVal sheet As DrawingSheet)
         'Größe der Zeichnung anpassen
-        If comboSize.SelectedItem = "DIN A0" Then
+        If comboSize.SelectedItem.contains("DIN A0") Then
             sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA0
-        ElseIf comboSize.SelectedItem = "DIN A1" Then
+        ElseIf comboSize.SelectedItem.contains("DIN A1") Then
             sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA1
-        ElseIf comboSize.SelectedItem = "DIN A2" Then
+        ElseIf comboSize.SelectedItem.contains("DIN A2") Then
             sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA2
-        ElseIf comboSize.SelectedItem = "DIN A3" Then
+        ElseIf comboSize.SelectedItem.contains("DIN A3") Then
             sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA3
-        ElseIf comboSize.SelectedItem = "DIN A4" Then
+        ElseIf comboSize.SelectedItem.contains("DIN A4") Then
             sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperA4
         ElseIf comboSize.SelectedItem = "Benutzerdefiniert" Then
             sheet.PaperSize = DRAFTINGITF.CatPaperSize.catPaperUser
