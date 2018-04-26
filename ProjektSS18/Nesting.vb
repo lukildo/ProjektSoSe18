@@ -314,7 +314,8 @@ Public Class Nesting
             Next fileName
 
             If loadError.Length > 0 Then
-                MessageBox.Show(loadError & " konnte nicht geladen werden.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                If shapeDrawings.Count = 0 Then CATIA.ActiveDocument.Close()
+                MessageBox.Show(loadError & " konnte nicht geladen werden. Die ausgewählten Zeichnungen dürfen momentan nicht geöffnet sein.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             End If
         End If
     End Sub
