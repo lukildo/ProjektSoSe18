@@ -22,6 +22,7 @@ Public Class Exporter
         Dim myPart As Part
         Dim savedParts As New Dictionary(Of Part, Integer)
         Dim isPart As Boolean
+        Dim activeDocument As Document
 
         'UI blockieren
         btnBack1.Enabled = False
@@ -40,6 +41,7 @@ Public Class Exporter
 
         'Part oder Produkt geöffnet
         isPart = Not CATIA.ActiveDocument.Name.Contains(".CATProduct")
+        activeDocument = CATIA.ActiveDocument
 
         'Alle Parts auswählen
         sel = CATIA.ActiveDocument.Selection
@@ -79,11 +81,9 @@ Public Class Exporter
         progMax = 4 * savedParts.Count
 
         'Sheetmetal Workbench aktivieren
-        If Not isPart Then
-            CATIA.Documents.Add("Part")
-            CATIA.StartWorkbench("SmdNewDesignWorkbench")
-            CATIA.ActiveDocument.Close()
-        End If
+        CATIA.Documents.Add("Part")
+        CATIA.StartWorkbench("SmdNewDesignWorkbench")
+        CATIA.ActiveDocument.Close()
 
         'Liste durchgehen und exportieren
         For Each kvp As KeyValuePair(Of Part, Integer) In savedParts
@@ -100,6 +100,7 @@ Public Class Exporter
                 End Try
             End If
 
+            CATIA.Interactive = False
             partName = CATIA.ActiveDocument.Name.Replace(".CATPart", "")
             partNamePath = CATIA.ActiveDocument.FullName.Replace(".CATPart", "")
 
@@ -125,12 +126,9 @@ Public Class Exporter
             While FindWindow(Nothing, "DXF-Datei auswählen").Equals(IntPtr.Zero)
                 Thread.Sleep(30)
                 timeElapsed += 1
-
+                'Timeout
                 If timeElapsed > 70 Then
-                    'UI aktivieren
-                    btnBack1.Enabled = True
-                    Button1.Enabled = True
-
+                    activateUI(CATIA, activeDocument)
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Me.Activate()
                     Exit Sub
@@ -143,22 +141,21 @@ Public Class Exporter
             While GetDlgItem(window, 0) = 0
                 Thread.Sleep(10)
                 timeElapsed += 1
+                'Timeout
                 If timeElapsed > 100 Then Exit While
             End While
             okButton = GetDlgItem(window, 0)
             'Button drücken
             SendMessage(okButton, BM_CLICK, IntPtr.Zero, IntPtr.Zero)
-            CATIA.Interactive = False
+
             'Warten bis das zweite Fenster geöffnet ist; mit Timeout
             timeElapsed = 0
             While FindWindow(Nothing, "Sichern unter").Equals(IntPtr.Zero)
                 Thread.Sleep(30)
                 timeElapsed += 1
+                'Timeout
                 If timeElapsed > 70 Then
-                    'UI aktivieren
-                    btnBack1.Enabled = True
-                    Button1.Enabled = True
-
+                    activateUI(CATIA, activeDocument)
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Me.Activate()
                     Exit Sub
@@ -174,15 +171,12 @@ Public Class Exporter
             While Not FindWindow(Nothing, "Sichern unter") = 0
                 timeElapsed += 1
                 SetForegroundWindow(FindWindow(Nothing, "Sichern unter"))
+                SetActiveWindow(FindWindow(Nothing, "Sichern unter"))
                 SendKeys.SendWait("^v{Enter}")
                 Thread.Sleep(30)
-
+                'Timeout
                 If timeElapsed > 100 Then
-                    'UI aktivieren
-                    btnBack1.Enabled = True
-                    Button1.Enabled = True
-                    CATIA.Interactive = True
-
+                    activateUI(CATIA, activeDocument)
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Me.Activate()
                     Exit Sub
@@ -195,13 +189,9 @@ Public Class Exporter
             While Not File.Exists(fileDxf)
                 Thread.Sleep(30)
                 timeElapsed += 1
-                'Fehlermeldung, falls nach der Wartezeit noch keine Datei vorhanden ist
+                'Timeout
                 If timeElapsed > 100 Then
-                    'UI aktivieren
-                    btnBack1.Enabled = True
-                    Button1.Enabled = True
-                    CATIA.Interactive = True
-
+                    activateUI(CATIA, activeDocument)
                     MessageBox.Show("DXF konnte nicht exportiert werden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Me.Activate()
                     Exit Sub
@@ -212,8 +202,9 @@ Public Class Exporter
             progUpdate(partName + ".dxf öffnen")
 
             SetForegroundWindow(FindWindow(Nothing, "ShapeFormat"))
+            SetActiveWindow(FindWindow(Nothing, "ShapeFormat"))
             'Exportierte Datei öffnen und DXF danach löschen
-            CATIA.Interactive = True
+            'CATIA.Interactive = True
             CATIA.Documents.Open(fileDxf)
 
             File.Delete(fileDxf)
@@ -231,7 +222,7 @@ Public Class Exporter
 
             'erstes Objekt nach dem Achsensystem ist Start der Außenkontur
             sel.Add(CATIA.ActiveDocument.Sheets.ActiveSheet.Views.ActiveView.GeometricElements.Item(2))
-            CATIA.StartCommand("Automatische Suche")
+            CATIA.StartCommand("CAT2DAutoSearchHdr")
             'Außenkontur Farbe anpassen
             CATIA.ActiveDocument.Selection.VisProperties.SetRealColor(0, 0, 255, 0)
             sel.Clear()
@@ -241,10 +232,7 @@ Public Class Exporter
             Try
                 CATIA.ActiveDocument.SaveAs(outputPath)
             Catch ex As Exception
-                'UI aktivieren
-                btnBack1.Enabled = True
-                Button1.Enabled = True
-
+                activateUI(CATIA, activeDocument)
                 'Fehlermeldung innerhalb von Catia
                 Exit Sub
 
@@ -276,8 +264,16 @@ Public Class Exporter
         Else
             progUpdate("Alle " & savedParts.Count & " (verschiedenen) Parts wurden exportiert!", 100)
         End If
+        activateUI(CATIA, activeDocument)
+    End Sub
 
-        'UI aktivieren
+    'UI aktivieren
+    Private Sub activateUI(ByVal CATIA As INFITF.Application, ByVal activeDocument As Document)
+        CATIA.Interactive = True
+        'Workbench Icons wiederherstellen
+        CATIA.ActiveWindow.WindowState = CatWindowState.catWindowStateMinimized
+        CATIA.ActiveWindow.WindowState = CatWindowState.catWindowStateMaximized
+        activeDocument.Activate()
         btnBack1.Enabled = True
         Button1.Enabled = True
     End Sub
