@@ -35,6 +35,8 @@ Public Class Exporter
         Catch ex As COMException
             'Fehlermeldung bei Verbindungsproblem und Programmende
             MessageBox.Show("Catia nicht gefunden!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            btnBack1.Enabled = True
+            Button1.Enabled = True
             Me.Activate()
             Exit Sub
         End Try
@@ -206,7 +208,6 @@ Public Class Exporter
             'Exportierte Datei öffnen und DXF danach löschen
             'CATIA.Interactive = True
             CATIA.Documents.Open(fileDxf)
-
             File.Delete(fileDxf)
 
             '##ProgressUpdate
