@@ -219,17 +219,22 @@ Public Class Nesting
                 Dim loadPartName As String
                 Dim loadName As String
                 Dim counter As Integer = 0
+                Dim loadName2 As String
 
                 'Anzahl der gleichen Views berechnen
                 loadPartName = fileName.Substring(fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1)
                 If loadPartName.Contains("_Laser") Then
                     loadName = loadPartName.Substring(0, loadPartName.LastIndexOf("_"))
+
                     For Each fileName2 In openDialog.FileNames
-                        If fileName2.Contains(loadName) Then counter += 1
+                        loadName2 = fileName2.Substring(fileName2.LastIndexOf(Path.DirectorySeparatorChar) + 1)
+                        If loadName2.Contains("_Laser") Then
+                            loadName2 = loadName2.Substring(0, loadName2.LastIndexOf("_"))
+                            If loadName2 = loadName Then counter += 1
+                        End If
                     Next fileName2
                 Else
-                    counter = 1
-                    loadName = loadPartName.Replace(".CATDrawing", "")
+                    Continue For
                 End If
 
                 'Prüfen, ob die Datei schon geladen wurde
@@ -519,7 +524,8 @@ Public Class Nesting
         'Gesamte Datenliste durchgehen
         For Each shapeDrawing1 In shapeDrawings
             sel.Clear()
-            sel.Search("Name=" & shapeDrawing1.name & "+Name=" & shapeDrawing1.name & "[*,all")
+            sel.Search("Name='" & shapeDrawing1.name & "'+Name='" & shapeDrawing1.name & "[*',all")
+
             'Gespeicherte Anzahl stimmt mit der aktuellen Anzahl überein
             If shapeDrawing1.count = sel.Count2 Then Continue For
 

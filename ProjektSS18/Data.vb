@@ -191,9 +191,9 @@ Module Data
 
         'Richtige View finden
         If shapeDrawing1.placed = 1 Then
-            sel.Search("Name=" & shapeDrawing1.name & ",all")
+            sel.Search("Name='" & shapeDrawing1.name & "',all")
         Else
-            sel.Search("Name=" & shapeDrawing1.name & "[" & shapeDrawing1.placed & "],all")
+            sel.Search("Name='" & shapeDrawing1.name & "[" & shapeDrawing1.placed & "]',all")
         End If
 
         Dim drwView As DrawingView
